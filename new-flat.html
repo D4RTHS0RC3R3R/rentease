@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anunciar Novo Flat - RentEase</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container header-flex">
+            <div class="logo">RentEase</div>
+            <nav class="main-nav">
+                <a href="index.html">Favoritos</a>
+                <a href="all-flats.html">Todos os Flats</a>
+                <a href="new-flat.html" class="active">Novo Flat</a>
+            </nav>
+            <div class="user-info">
+                <span id="user-display">Olá, <strong id="full-name">Utilizador</strong></span>
+                <button onclick="logout()" class="btn-logout">Sair</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="form-container airbnb-card">
+            <h1>Anuncie o seu espaço</h1>
+            <p class="subtitle">Insira os detalhes do novo apartamento abaixo.</p>
+
+            <form id="new-flat-form">
+                <div class="input-section">
+                    <label>Localização</label>
+                    <input type="text" id="city" placeholder="Cidade (ex: Lisboa)" required>
+                    <div class="input-row">
+                        <input type="text" id="streetName" placeholder="Nome da Rua" required>
+                        <input type="number" id="streetNumber" placeholder="Nº" required>
+                    </div>
+                </div>
+
+                <div class="input-section">
+                    <label>Características</label>
+                    <div class="input-row">
+                        <input type="number" id="areaSize" placeholder="Área (m²)" required>
+                        <input type="number" id="yearBuilt" placeholder="Ano de Construção" required>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasAC">
+                        <label for="hasAC">Possui Ar Condicionado?</label>
+                    </div>
+                </div>
+
+                <div class="input-section">
+                    <label>Preço e Disponibilidade</label>
+                    <input type="number" id="rentPrice" placeholder="Preço do Aluguer (€)" required>
+                    <input type="date" id="dateAvailable" required>
+                </div>
+
+                <button type="submit" class="btn-primary">Criar Apartamento</button>
+            </form>
+        </div>
+    </main>
+
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+    <script>
+
+        document.getElementById('new-flat-form').onsubmit = (e) => {
+            e.preventDefault();
+
+            const newFlat = {
+                id: crypto.randomUUID(), 
+                city: document.getElementById('city').value,
+                streetName: document.getElementById('streetName').value,
+                streetNumber: Number(document.getElementById('streetNumber').value),
+                areaSize: Number(document.getElementById('areaSize').value),
+                hasAC: document.getElementById('hasAC').checked,
+                yearBuilt: Number(document.getElementById('yearBuilt').value),
+                rentPrice: Number(document.getElementById('rentPrice').value),
+                dateAvailable: document.getElementById('dateAvailable').value,
+                isFavourite: false
+            };
+
+            let flats = JSON.parse(localStorage.getItem('flats')) || [];
+            
+            flats.push(newFlat);
+            
+            localStorage.setItem('flats', JSON.stringify(flats));
+
+            alert("Apartamento criado com sucesso!");
+            window.location.href = 'all-flats.html';
+        };
+    </script>
+</body>
+</html>

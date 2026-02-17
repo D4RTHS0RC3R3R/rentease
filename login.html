@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - RentEase</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-page">
+    <main class="auth-container">
+        <form id="login-form" class="airbnb-card">
+            <div class="logo">RentEase</div>
+            <h2>Bem-vindo de volta</h2>
+            
+            <input type="email" id="login-email" placeholder="E-mail" required> 
+            <input type="password" id="login-password" placeholder="Palavra-passe" required> 
+            
+            <button type="submit" class="btn-primary">Entrar</button> 
+            
+            <div class="auth-options">
+                <button type="button" onclick="resetPassword()" class="btn-text">Esqueci minha senha</button> 
+                <p>Não tem conta? <a href="register.html">Registre-se</a></p> 
+            </div>
+        </form>
+    </main>
+
+    <script src="auth.js"></script>
+    <script>
+        document.getElementById('login-form').onsubmit = (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            
+          
+            const savedUser = JSON.parse(localStorage.getItem('user'));
+            
+            if (savedUser && savedUser.email === email && savedUser.password === pass) {
+                createSession();
+            } else {
+                alert("Dados de login incorretos ou utilizador não registrado.");
+            }
+        };
+    </script>
+</body>
+</html>
