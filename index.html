@@ -1,26 +1,23 @@
 <!DOCTYPE html>
 <html lang="pt">
-
 <head>
     <meta charset="UTF-8">
     <title>RentEase - Meus Favoritos</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
     <header class="main-header">
         <div class="container header-flex">
             <a href="index.html" class="logo-link">RentEase</a>
             <nav class="main-nav">
-                <a href="index.html">Favoritos</a>
+                <a href="index.html" class="active">Favoritos</a>
                 <a href="all-flats.html">Todos os Flats</a>
                 <a href="new-flat.html">Novo Flat</a>
                 <a href="profile.html">Perfil</a>
             </nav>
             <div class="user-info">
                 Olá, <strong id="full-name-header">...</strong>
-                <button onclick="logout()"
-                    style="background:none; border:1px solid #ddd; padding:5px 12px; border-radius:20px; cursor:pointer;">Sair</button>
+                <button onclick="logout()" class="btn-logout">Sair</button>
             </div>
         </div>
     </header>
@@ -28,14 +25,12 @@
     <main class="container">
         <section class="page-title">
             <h1>Meus Favoritos ❤️</h1>
-            <p>Aqui estão os apartamentos que você mais gostou.</p>
+            <p>Aqui estão os flats que você mais gostou.</p>
         </section>
 
         <div id="favorites-grid" class="flats-grid"></div>
     </main>
 
     <script src="auth.js"></script>
-    <script src="app.js"></script>
-</body>
-
+    <script src="index.js"></script> </body>
 </html>

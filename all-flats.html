@@ -1,48 +1,65 @@
 <!DOCTYPE html>
 <html lang="pt">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meus Flats - RentEase</title>
+    <title>Todos os Flats - RentEase</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-
     <header class="main-header">
         <div class="container header-flex">
             <a href="index.html" class="logo-link">RentEase</a>
             <nav class="main-nav">
                 <a href="index.html">Favoritos</a>
-                <a href="all-flats.html">Todos os Flats</a>
+                <a href="all-flats.html" class="active">Todos os Flats</a>
                 <a href="new-flat.html">Novo Flat</a>
                 <a href="profile.html">Perfil</a>
             </nav>
             <div class="user-info">
                 Olá, <strong id="full-name-header">...</strong>
-                <button onclick="logout()"
-                    style="background:none; border:1px solid #ddd; padding:5px 12px; border-radius:20px; cursor:pointer;">Sair</button>
+                <button onclick="logout()" class="btn-logout">Sair</button>
             </div>
         </div>
     </header>
 
     <main class="container">
-        <h1>Os meus Apartamentos</h1>
+        <h1>Todos os Flats</h1>
+    
         <div id="all-flats-grid" class="flats-grid"></div>
 
         <div id="editModal" class="modal">
-            <div class="modal-content airbnb-card">
+            <div class="modal-content">
                 <span class="close-btn" onclick="closeEditModal()">&times;</span>
-                <h2>Editar Apartamento</h2>
+                <h2>Editar Flat</h2>
                 <form id="edit-form" onsubmit="saveEdit(event)">
                     <input type="hidden" id="edit-id">
                     <label>Cidade</label>
                     <input type="text" id="edit-city" required>
-                    <label>Preço (€)</label>
-                    <input type="number" id="edit-rentPrice" required>
+                    <div class="input-row">
+                        <div>
+                            <label>Rua</label>
+                            <input type="text" id="edit-street">
+                        </div>
+                        <div>
+                            <label>Nº</label>
+                            <input type="text" id="edit-number">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div>
+                            <label>Área (m²)</label>
+                            <input type="number" id="edit-area">
+                        </div>
+                        <div>
+                            <label>Preço (€)</label>
+                            <input type="number" id="edit-price" required>
+                        </div>
+                    </div>
+                    <label>Link da Foto (URL)</label>
+                    <input type="url" id="edit-photo">
                     <button type="submit" class="btn-primary">Guardar Alterações</button>
-                    <button type="button" onclick="deleteFlat()" class="btn-delete-flat">Eliminar Apartamento</button>
+                    <button type="button" onclick="deleteFlat()" class="btn-delete-acc">Eliminar Flat</button>
                 </form>
             </div>
         </div>
@@ -51,5 +68,4 @@
     <script src="auth.js"></script>
     <script src="app.js"></script>
 </body>
-
 </html>
