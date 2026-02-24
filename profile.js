@@ -2,30 +2,49 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentUser = JSON.parse(localStorage.getItem('user'));
 
     if (currentUser) {
-        document.getElementById('profile-name').textContent = `${currentUser.firstName} ${currentUser.lastName}`;
-        document.getElementById('profile-email').textContent = currentUser.email;
-        document.getElementById('profile-birth').textContent = currentUser.birthDate;
+        document.getElementById('prof-firstName').value = currentUser.firstName || '';
+        document.getElementById('prof-lastName').value = currentUser.lastName || '';
+        document.getElementById('prof-email').value = currentUser.email || '';
+        document.getElementById('prof-birth').value = currentUser.birthDate || '';
     }
 });
 
+function saveProfile(event) {
+    event.preventDefault();
+
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    let currentUser = JSON.parse(localStorage.getItem('user'));
+
+    const updatedData = {
+        ...currentUser,
+        firstName: document.getElementById('prof-firstName').value,
+        lastName: document.getElementById('prof-lastName').value,
+        birthDate: document.getElementById('prof-birth').value
+    };
+
+    users = users.map(u => u.email === currentUser.email ? updatedData : u);
+
+    localStorage.setItem('users', JSON.stringify(users));
+    localStorage.setItem('user', JSON.stringify(updatedData));
+    localStorage.setItem('session', JSON.stringify(updatedData));
+
+    alert("Perfil atualizado com sucesso!");
+    location.reload();
+}
+
 function deleteAccount() {
-    const confirmation = confirm("Tens a certeza? Esta ação não pode ser desfeita e todos os teus apartamentos serão apagados.");
-
-    if (confirmation) {
+    if (confirm("AVISO: Tem certeza? Todos os seus dados serão apagados.")) {
         const currentUser = JSON.parse(localStorage.getItem('user'));
-        const allUsers = JSON.parse(localStorage.getItem('users')) || [];
-        const allFlats = JSON.parse(localStorage.getItem('flats')) || [];
 
-        const updatedUsers = allUsers.filter(u => u.email !== currentUser.email);
-        localStorage.setItem('users', JSON.stringify(updatedUsers));
+        let flats = JSON.parse(localStorage.getItem('flats')) || [];
+        localStorage.setItem('flats', JSON.stringify(flats.filter(f => f.ownerEmail !== currentUser.email)));
 
-        const updatedFlats = allFlats.filter(f => f.ownerEmail !== currentUser.email);
-        localStorage.setItem('flats', JSON.stringify(updatedFlats));
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        localStorage.setItem('users', JSON.stringify(users.filter(u => u.email !== currentUser.email)));
 
         localStorage.removeItem('session');
         localStorage.removeItem('user');
 
-        alert("Conta e dados excluídos com sucesso.");
         window.location.href = 'register.html';
     }
 }

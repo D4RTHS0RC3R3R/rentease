@@ -1,57 +1,54 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registo - RentEase</title>
-    <link rel="stylesheet" href="styles.css"> 
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body class="auth-page">
     <main class="auth-container">
         <form id="register-form" class="airbnb-card" onsubmit="handleRegister(event)">
             <div class="logo">RentEase</div>
             <h2>Criar conta</h2>
-            
+
             <div class="input-group">
-                <input type="text" id="firstName" placeholder="Primeiro Nome" required minlength="2"> 
-                <input type="text" id="lastName" placeholder="Último Nome" required minlength="2"> 
+                <input type="text" id="firstName" placeholder="Primeiro Nome" required minlength="2">
+                <input type="text" id="lastName" placeholder="Último Nome" required minlength="2">
             </div>
-            
-            <input type="email" id="reg-email" placeholder="E-mail" required> 
+
+            <input type="email" id="reg-email" placeholder="E-mail" required>
             <label for="birthDate">Data de Nascimento:</label>
             <input type="date" id="birthDate" required>
-            
+
             <input type="password" id="reg-password" placeholder="Palavra-passe" required>
-            <input type="password" id="confirm-password" placeholder="Confirmar Palavra-passe" required> 
-            
-            <button type="submit" class="btn-primary">Registar</button> 
+            <input type="password" id="confirm-password" placeholder="Confirmar Palavra-passe" required>
+
+            <button type="submit" class="btn-primary">Registrar</button>
             <p class="auth-footer">Já tem conta? <a href="login.html">Login</a></p>
         </form>
     </main>
 
-    <script src="auth.js"></script> 
+    <script src="auth.js"></script>
     <script>
         function handleRegister(event) {
             event.preventDefault();
 
-            // 1. Pega a lista de utilizadores (a nossa base de dados)
             const users = JSON.parse(localStorage.getItem('users')) || [];
             const email = document.getElementById('reg-email').value;
 
-            // 2. Verifica se o email já existe para não duplicar
             if (users.find(u => u.email === email)) {
                 return alert("Este email já está registado!");
             }
-
-            // 3. Verifica se as passwords coincidem
             const password = document.getElementById('reg-password').value;
             const confirmPass = document.getElementById('confirm-password').value;
-            
+
             if (password !== confirmPass) {
                 return alert("As passwords não coincidem!");
             }
 
-            // 4. Cria o objeto com os IDs corretos que estão no teu HTML acima
             const newUser = {
                 firstName: document.getElementById('firstName').value,
                 lastName: document.getElementById('lastName').value,
@@ -60,19 +57,17 @@
                 birthDate: document.getElementById('birthDate').value
             };
 
-            // 5. Valida idade e formato da password (função do auth.js)
             if (!validateUser(newUser)) return;
 
-            // 6. Guarda na lista de utilizadores
             users.push(newUser);
             localStorage.setItem('users', JSON.stringify(users));
 
-            // 7. Cria a sessão com o novo utilizador para entrar logo
-            createSession(newUser); 
+            createSession(newUser);
 
             alert("Conta criada com sucesso!");
             window.location.href = 'index.html';
         }
     </script>
 </body>
+
 </html>
