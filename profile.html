@@ -1,92 +1,59 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil - RentEase</title>
+    <title>Meu Perfil - RentEase</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <header class="main-header">
         <div class="container header-flex">
-            <div class="logo">RentEase</div>
+            <a href="index.html" class="logo-link">RentEase</a>
             <nav class="main-nav">
-                <a href="index.html">Home (Favoritos)</a>
+                <a href="index.html">Favoritos</a>
                 <a href="all-flats.html">Todos os Flats</a>
                 <a href="new-flat.html">Novo Flat</a>
                 <a href="profile.html" class="active">Perfil</a>
             </nav>
             <div class="user-info">
-                <span id="user-display">Olá, <strong id="full-name-header">...</strong></span>
-                <button onclick="logout()" class="btn-logout">Sair</button>
+                Olá, <strong id="full-name-header">...</strong>
+                <button onclick="logout()"
+                    style="background:none; border:1px solid #ddd; padding:5px 12px; border-radius:20px; cursor:pointer;">Sair</button>
             </div>
         </div>
     </header>
 
     <main class="container">
-        <div class="form-container airbnb-card">
-            <h1>Definições de Perfil</h1>
-            <p class="subtitle">Atualize as suas informações pessoais aqui.</p>
+        <div style="max-width: 600px; margin: 0 auto;">
+            <h1>O meu Perfil</h1>
+            <span class="subtitle">Gere as tuas informações e conta.</span>
 
-            <form id="update-profile-form">
-                <div class="input-section">
-                    <label>Dados Pessoais</label>
-                    <div class="input-row">
-                        <input type="text" id="edit-firstName" placeholder="Nome" required minlength="2">
-                        <input type="text" id="edit-lastName" placeholder="Apelido" required minlength="2">
-                    </div>
-                    <input type="email" id="edit-email" placeholder="E-mail" required>
-                    <input type="date" id="edit-birthDate" required>
-                </div>
+            <div class="airbnb-card" style="padding: 30px; border: 1px solid #ddd; border-radius: 12px;">
+                <label>Nome Completo</label>
+                <p id="profile-name" style="font-size: 1.2rem; font-weight: 600; margin-bottom: 15px;">-</p>
 
-                <div class="input-section">
-                    <label>Segurança</label>
-                    <input type="password" id="edit-password" placeholder="Nova Palavra-passe">
-                    <input type="password" id="edit-confirm-password" placeholder="Confirmar Nova Palavra-passe">
-                </div>
+                <label>E-mail</label>
+                <p id="profile-email" style="font-size: 1.1rem; margin-bottom: 15px;">-</p>
 
-                <button type="submit" class="btn-primary">Atualizar Perfil</button>
-            </form>
+                <label>Data de Nascimento</label>
+                <p id="profile-birth" style="font-size: 1.1rem; margin-bottom: 30px;">-</p>
+
+                <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 30px;">
+
+                <h3 style="color: #d32f2f; margin-bottom: 10px;">Excluir Conta</h3>
+                <p class="subtitle" style="margin-bottom: 15px;">Ao excluir o seu perfil, todos os seus apartamentos e
+                    dados serão removidos permanentemente.</p>
+
+                <button onclick="deleteAccount()" class="btn-delete" style="padding: 15px;">Excluir Minha Conta</button>
+            </div>
         </div>
     </main>
 
     <script src="auth.js"></script>
-    <script>
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const user = JSON.parse(localStorage.getItem('user'));
-            if (user) {
-                document.getElementById('edit-firstName').value = user.firstName;
-                document.getElementById('edit-lastName').value = user.lastName;
-                document.getElementById('edit-email').value = user.email;
-                document.getElementById('edit-birthDate').value = user.birthDate;
-                document.getElementById('full-name-header').textContent = `${user.firstName} ${user.lastName}`;
-            }
-        });
-
-        document.getElementById('update-profile-form').onsubmit = (e) => {
-            e.preventDefault();
-            const currentUser = JSON.parse(localStorage.getItem('user'));
-            
-            const updatedUser = {
-                firstName: document.getElementById('edit-firstName').value,
-                lastName: document.getElementById('edit-lastName').value,
-                email: document.getElementById('edit-email').value,
-                birthDate: document.getElementById('edit-birthDate').value,
-                password: document.getElementById('edit-password').value || currentUser.password
-            };
-
-            if (!validateUser(updatedUser)) return;
-  
-            const newPass = document.getElementById('edit-password').value;
-            if (newPass && newPass !== document.getElementById('edit-confirm-password').value) {
-                return alert("As novas passwords não coincidem!");
-            }
-
-             localStorage.setItem('user', JSON.stringify(updatedUser));
-            alert("Perfil atualizado com sucesso!");
-            window.location.href = 'index.html';
-        };
-    </script>
+    <script src="profile.js"></script>
 </body>
+
 </html>

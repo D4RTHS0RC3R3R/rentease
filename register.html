@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registo - RentEase</title>
-    <link rel="stylesheet" href="styles.css"> </head>
+    <link rel="stylesheet" href="styles.css"> 
+</head>
 <body class="auth-page">
     <main class="auth-container">
-        <form id="register-form" class="airbnb-card">
+        <form id="register-form" class="airbnb-card" onsubmit="handleRegister(event)">
             <div class="logo">RentEase</div>
             <h2>Criar conta</h2>
             
@@ -28,27 +29,50 @@
         </form>
     </main>
 
-    <script src="auth.js"></script> <script>
-        document.getElementById('register-form').onsubmit = (e) => {
-            e.preventDefault();
-            const user = {
-                firstName: document.getElementById('firstName').value,
-                lastName: document.getElementById('lastName').value,
-                email: document.getElementById('reg-email').value,
-                birthDate: document.getElementById('birthDate').value,
-                password: document.getElementById('reg-password').value
-            };
+    <script src="auth.js"></script> 
+    <script>
+        function handleRegister(event) {
+            event.preventDefault();
 
-            if (!validateUser(user)) return; 
-            
-            if (user.password !== document.getElementById('confirm-password').value) {
-                return alert("As passwords não coincidem");
+            // 1. Pega a lista de utilizadores (a nossa base de dados)
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const email = document.getElementById('reg-email').value;
+
+            // 2. Verifica se o email já existe para não duplicar
+            if (users.find(u => u.email === email)) {
+                return alert("Este email já está registado!");
             }
 
-            localStorage.setItem('user', JSON.stringify(user)); 
-            createSession();
-            window.location.href = 'index.html'; 
-        };
+            // 3. Verifica se as passwords coincidem
+            const password = document.getElementById('reg-password').value;
+            const confirmPass = document.getElementById('confirm-password').value;
+            
+            if (password !== confirmPass) {
+                return alert("As passwords não coincidem!");
+            }
+
+            // 4. Cria o objeto com os IDs corretos que estão no teu HTML acima
+            const newUser = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: email,
+                password: password,
+                birthDate: document.getElementById('birthDate').value
+            };
+
+            // 5. Valida idade e formato da password (função do auth.js)
+            if (!validateUser(newUser)) return;
+
+            // 6. Guarda na lista de utilizadores
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+
+            // 7. Cria a sessão com o novo utilizador para entrar logo
+            createSession(newUser); 
+
+            alert("Conta criada com sucesso!");
+            window.location.href = 'index.html';
+        }
     </script>
 </body>
 </html>

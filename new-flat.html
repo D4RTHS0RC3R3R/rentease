@@ -1,25 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anunciar Novo Flat - RentEase</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
+
     <header class="main-header">
         <div class="container header-flex">
-            <div class="logo">RentEase</div>
+            <a href="index.html" class="logo-link">RentEase</a>
             <nav class="main-nav">
                 <a href="index.html">Favoritos</a>
                 <a href="all-flats.html">Todos os Flats</a>
-                <a href="new-flat.html" class="active">Novo Flat</a>
+                <a href="new-flat.html">Novo Flat</a>
+                <a href="profile.html">Perfil</a>
             </nav>
             <div class="user-info">
-                <span id="user-display">Olá, <strong id="full-name">Utilizador</strong></span>
-                <button onclick="logout()" class="btn-logout">Sair</button>
+                Olá, <strong id="full-name-header">...</strong>
+                <button onclick="logout()"
+                    style="background:none; border:1px solid #ddd; padding:5px 12px; border-radius:20px; cursor:pointer;">Sair</button>
             </div>
         </div>
+    </header>
     </header>
 
     <main class="container">
@@ -55,6 +61,12 @@
                     <input type="date" id="dateAvailable" required>
                 </div>
 
+                <div class="input-section">
+                    <label>Link da Imagem</label>
+                    <input type="url" id="photoUrl" placeholder="https://exemplo.com/imagem.jpg">
+                    <small style="color: #717171;">Cole o endereço de uma imagem da internet.</small>
+                </div>
+
                 <button type="submit" class="btn-primary">Criar Apartamento</button>
             </form>
         </div>
@@ -64,11 +76,22 @@
     <script src="app.js"></script>
     <script>
 
-        document.getElementById('new-flat-form').onsubmit = (e) => {
-            e.preventDefault();
+        document.getElementById('new-flat-form').addEventListener('submit', saveNewFlat);
+
+        function saveNewFlat(event) {
+            event.preventDefault();
+
+            const userSession = JSON.parse(localStorage.getItem('user'));
+
+            if (!userSession || !userSession.email) {
+                alert("Erro de sessão. Por favor, faça login novamente.");
+                window.location.href = 'login.html';
+                return;
+            }
 
             const newFlat = {
-                id: crypto.randomUUID(), 
+                id: crypto.randomUUID(),
+                ownerEmail: userSession.email,
                 city: document.getElementById('city').value,
                 streetName: document.getElementById('streetName').value,
                 streetNumber: Number(document.getElementById('streetNumber').value),
@@ -77,18 +100,18 @@
                 yearBuilt: Number(document.getElementById('yearBuilt').value),
                 rentPrice: Number(document.getElementById('rentPrice').value),
                 dateAvailable: document.getElementById('dateAvailable').value,
+                photoUrl: document.getElementById('photoUrl').value || "",
                 isFavourite: false
             };
 
-            let flats = JSON.parse(localStorage.getItem('flats')) || [];
-            
-            flats.push(newFlat);
-            
-            localStorage.setItem('flats', JSON.stringify(flats));
+            allFlats.push(newFlat);
+
+            localStorage.setItem('flats', JSON.stringify(allFlats));
 
             alert("Apartamento criado com sucesso!");
             window.location.href = 'all-flats.html';
-        };
+        }
     </script>
 </body>
+
 </html>

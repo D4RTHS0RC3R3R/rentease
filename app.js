@@ -1,70 +1,69 @@
 let allFlats = JSON.parse(localStorage.getItem('flats')) || [];
-const user = JSON.parse(localStorage.getItem('user')) || { firstName: "Convidado", lastName: "" };
+const currentUser = JSON.parse(localStorage.getItem('user')) || {};
 
+function renderAllFlats() {
+    const container = document.getElementById('all-flats-grid');
+    if (!container) return;
 
-document.getElementById('full-name').textContent = `${user.firstName} ${user.lastName}`;
+    const myFlats = allFlats.filter(f => f.ownerEmail === currentUser.email);
 
+    if (myFlats.length === 0) {
+        container.innerHTML = `<p style="text-align:center; grid-column: 1/-1; padding: 40px;">Nenhum apartamento encontrado.</p>`;
+        return;
+    }
 
-function renderFlats() {
-    const container = document.getElementById('flats-container');
-    const cityFilter = document.getElementById('filter-city').value.toLowerCase();
-    const minPrice = Number(document.getElementById('filter-min-price').value) || 0;
-    const maxPrice = Number(document.getElementById('filter-max-price').value) || Infinity;
-    const sortBy = document.getElementById('sort-select').value;
-
-    let filtered = allFlats.filter(flat => {
-        const matchCity = flat.city.toLowerCase().includes(cityFilter);
-        const matchPrice = flat.rentPrice >= minPrice && flat.rentPrice <= maxPrice;
-        return matchCity && matchPrice;
-    });
-
-    filtered.sort((a, b) => {
-        if (typeof a[sortBy] === 'string') return a[sortBy].localeCompare(b[sortBy]);
-        return a[sortBy] - b[sortBy];
-    });
-
-   
-    container.innerHTML = filtered.map(flat => `
-        <div class="flat-card airbnb-card">
-            <div class="flat-image-placeholder"></div>
+    container.innerHTML = myFlats.map(flat => `
+        <div class="flat-card" onclick="openEditModal('${flat.id}')">
+            <div class="flat-image-container">
+                <img src="${flat.photoUrl || 'https://via.placeholder.com/300'}" class="flat-photo">
+            </div>
             <div class="flat-content">
-                <div class="flat-header">
-                    <h3>${flat.city}</h3>
-                    <button onclick="toggleFavorite('${flat.id}')" class="fav-btn ${flat.isFavourite ? 'active' : ''}">
-                        ${flat.isFavourite ? '❤️' : '🤍'}
-                    </button>
-                </div>
-                <p class="flat-details">${flat.streetName}, ${flat.streetNumber}</p>
-                <p class="flat-specs">${flat.areaSize}m² • ${flat.hasAC ? 'Ar Condicionado' : 'Sem AC'}</p>
-                <p class="flat-price"><strong>€${flat.rentPrice}</strong> / mês</p>
+                <h3>${flat.city}</h3>
+                <p>${flat.streetName}, ${flat.streetNumber}</p>
+                <p><strong>€${flat.rentPrice}</strong></p>
             </div>
         </div>
     `).join('');
 }
 
-window.toggleFavorite = (id) => {
-    allFlats = allFlats.map(f => f.id === id ? { ...f, isFavourite: !f.isFavourite } : f);
-    localStorage.setItem('flats', JSON.stringify(allFlats));
-    renderFlats();
+window.openEditModal = (id) => {
+    const flat = allFlats.find(f => f.id === id);
+    if (flat) {
+        document.getElementById('edit-id').value = flat.id;
+        document.getElementById('edit-city').value = flat.city;
+        document.getElementById('edit-street').value = flat.streetName || '';
+        document.getElementById('edit-price').value = flat.rentPrice;
+        document.getElementById('editModal').style.display = 'block';
+    }
 };
 
-window.toggleFavorite = (id) => {
-   
-    allFlats = allFlats.map(f => f.id === id ? { ...f, isFavourite: !f.isFavourite } : f);
-    
+window.closeEditModal = () => {
+    document.getElementById('editModal').style.display = 'none';
+};
+
+window.saveEdit = (event) => {
+    event.preventDefault();
+    const id = document.getElementById('edit-id').value;
+    allFlats = allFlats.map(f => f.id === id ? {
+        ...f,
+        city: document.getElementById('edit-city').value,
+        rentPrice: Number(document.getElementById('edit-price').value)
+    } : f);
     localStorage.setItem('flats', JSON.stringify(allFlats));
-    
-    if (document.getElementById('favorites-grid')) {
-        renderHome(); 
-    } else if (typeof renderAllFlats === 'function') {
+    closeEditModal();
+    renderAllFlats();
+};
+
+window.deleteFlat = () => {
+    const id = document.getElementById('edit-id').value;
+    if (confirm("Deseja eliminar este anúncio?")) {
+        allFlats = allFlats.filter(f => f.id !== id);
+        localStorage.setItem('flats', JSON.stringify(allFlats));
+        closeEditModal();
         renderAllFlats();
     }
 };
 
-document.getElementById('filter-city').oninput = renderFlats;
-document.getElementById('filter-min-price').oninput = renderFlats;
-document.getElementById('filter-max-price').oninput = renderFlats;
-document.getElementById('sort-select').onchange = renderFlats;
-
-
-renderFlats();
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('all-flats-grid')) renderAllFlats();
+});

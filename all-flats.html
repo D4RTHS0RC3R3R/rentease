@@ -1,102 +1,55 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todos os Flats - RentEase</title>
+    <title>Meus Flats - RentEase</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
+
     <header class="main-header">
         <div class="container header-flex">
-            <div class="logo">RentEase</div>
+            <a href="index.html" class="logo-link">RentEase</a>
             <nav class="main-nav">
-                <a href="index.html">Favoritos (Home)</a>
-                <a href="all-flats.html" class="active">Todos os Flats</a>
+                <a href="index.html">Favoritos</a>
+                <a href="all-flats.html">Todos os Flats</a>
                 <a href="new-flat.html">Novo Flat</a>
                 <a href="profile.html">Perfil</a>
             </nav>
             <div class="user-info">
-                <span id="user-display">Olá, <strong id="full-name">...</strong></span>
-                <button onclick="logout()" class="btn-logout">Sair</button>
+                Olá, <strong id="full-name-header">...</strong>
+                <button onclick="logout()"
+                    style="background:none; border:1px solid #ddd; padding:5px 12px; border-radius:20px; cursor:pointer;">Sair</button>
             </div>
         </div>
     </header>
 
     <main class="container">
-        <section class="page-title">
-            <h1>Todos os Apartamentos</h1>
-            <p>Explore todas as opções disponíveis no sistema.</p>
-        </section>
+        <h1>Os meus Apartamentos</h1>
+        <div id="all-flats-grid" class="flats-grid"></div>
 
-        <section class="filters-bar airbnb-card">
-            <div class="filter-inputs">
-                <input type="text" id="filter-city" placeholder="Cidade">
-                <input type="number" id="filter-min-price" placeholder="Preço Min">
-                <input type="number" id="filter-max-price" placeholder="Preço Max">
-                <input type="number" id="filter-min-area" placeholder="Área Min">
+        <div id="editModal" class="modal">
+            <div class="modal-content airbnb-card">
+                <span class="close-btn" onclick="closeEditModal()">&times;</span>
+                <h2>Editar Apartamento</h2>
+                <form id="edit-form" onsubmit="saveEdit(event)">
+                    <input type="hidden" id="edit-id">
+                    <label>Cidade</label>
+                    <input type="text" id="edit-city" required>
+                    <label>Preço (€)</label>
+                    <input type="number" id="edit-rentPrice" required>
+                    <button type="submit" class="btn-primary">Guardar Alterações</button>
+                    <button type="button" onclick="deleteFlat()" class="btn-delete-flat">Eliminar Apartamento</button>
+                </form>
             </div>
-            <div class="sort-box">
-                <label>Ordenar por:</label>
-                <select id="sort-select">
-                    <option value="city">Cidade</option>
-                    <option value="rentPrice">Preço</option>
-                    <option value="areaSize">Área</option>
-                </select>
-            </div>
-        </section>
-
-        <div id="all-flats-grid" class="flats-grid">
-            </div>
+        </div>
     </main>
 
     <script src="auth.js"></script>
     <script src="app.js"></script>
-    <script>
-       
-        function renderAllFlats() {
-            const container = document.getElementById('all-flats-grid');
-            const cityValue = document.getElementById('filter-city').value.toLowerCase();
-            const minPrice = Number(document.getElementById('filter-min-price').value) || 0;
-            const maxPrice = Number(document.getElementById('filter-max-price').value) || Infinity;
-            const minArea = Number(document.getElementById('filter-min-area').value) || 0;
-            const sortBy = document.getElementById('sort-select').value;
-
-            let filtered = allFlats.filter(flat => {
-                return flat.city.toLowerCase().includes(cityValue) &&
-                       flat.rentPrice >= minPrice &&
-                       flat.rentPrice <= maxPrice &&
-                       flat.areaSize >= minArea;
-            });
-
-            filtered.sort((a, b) => {
-                if (typeof a[sortBy] === 'string') return a[sortBy].localeCompare(b[sortBy]);
-                return a[sortBy] - b[sortBy];
-            });
-
-            container.innerHTML = filtered.map(flat => `
-                <div class="flat-card airbnb-card">
-                    <div class="flat-image-placeholder"></div>
-                    <div class="flat-content">
-                        <div class="flat-header">
-                            <h3>${flat.city}</h3>
-                            <button onclick="toggleFavorite('${flat.id}')" class="fav-btn ${flat.isFavourite ? 'active' : ''}">
-                                ${flat.isFavourite ? '❤️' : '🤍'}
-                            </button>
-                        </div>
-                        <p class="flat-details">${flat.streetName}, ${flat.streetNumber}</p>
-                        <p class="flat-specs">${flat.areaSize}m² • ${flat.yearBuilt}</p>
-                        <p class="flat-price"><strong>€${flat.rentPrice}</strong> / mês</p>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        document.querySelectorAll('input, select').forEach(el => {
-            el.addEventListener('input', renderAllFlats);
-        });
-
-        window.onload = renderAllFlats;
-    </script>
 </body>
+
 </html>

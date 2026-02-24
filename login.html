@@ -8,7 +8,7 @@
 </head>
 <body class="auth-page">
     <main class="auth-container">
-        <form id="login-form" class="airbnb-card">
+        <form id="login-form" class="airbnb-card" onsubmit="handleLogin(event)">
             <div class="logo">RentEase</div>
             <h2>Bem-vindo de volta</h2>
             
@@ -18,7 +18,6 @@
             <button type="submit" class="btn-primary">Entrar</button> 
             
             <div class="auth-options">
-                <button type="button" onclick="resetPassword()" class="btn-text">Esqueci minha senha</button> 
                 <p>Não tem conta? <a href="register.html">Registre-se</a></p> 
             </div>
         </form>
@@ -26,20 +25,24 @@
 
     <script src="auth.js"></script>
     <script>
-        document.getElementById('login-form').onsubmit = (e) => {
-            e.preventDefault();
+        function handleLogin(event) {
+            event.preventDefault();
+
+            const users = JSON.parse(localStorage.getItem('users')) || [];
             const email = document.getElementById('login-email').value;
             const pass = document.getElementById('login-password').value;
-            
-          
-            const savedUser = JSON.parse(localStorage.getItem('user'));
-            
-            if (savedUser && savedUser.email === email && savedUser.password === pass) {
-                createSession();
+
+            const foundUser = users.find(u => u.email === email && u.password === pass);
+
+            if (foundUser) {
+               
+                createSession(foundUser);
+             
+                window.location.href = 'index.html';
             } else {
-                alert("Dados de login incorretos ou utilizador não registrado.");
+                alert("Email ou password incorretos!");
             }
-        };
+        }
     </script>
 </body>
 </html>

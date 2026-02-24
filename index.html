@@ -1,22 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <title>RentEase - Meus Favoritos</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body data-page="home"> <header class="main-header">
+
+<body>
+    <header class="main-header">
         <div class="container header-flex">
-            <div class="logo">RentEase</div>
+            <a href="index.html" class="logo-link">RentEase</a>
             <nav class="main-nav">
-                <a href="index.html" class="active">Home</a>
+                <a href="index.html">Favoritos</a>
                 <a href="all-flats.html">Todos os Flats</a>
                 <a href="new-flat.html">Novo Flat</a>
                 <a href="profile.html">Perfil</a>
             </nav>
             <div class="user-info">
-                <span id="user-display">Olá, <strong id="full-name">...</strong></span>
-                <button onclick="logout()" class="btn-logout">Sair</button>
+                Olá, <strong id="full-name-header">...</strong>
+                <button onclick="logout()"
+                    style="background:none; border:1px solid #ddd; padding:5px 12px; border-radius:20px; cursor:pointer;">Sair</button>
             </div>
         </div>
     </header>
@@ -27,46 +31,11 @@
             <p>Aqui estão os apartamentos que você mais gostou.</p>
         </section>
 
-        <div id="favorites-grid" class="flats-grid">
-            </div>
-        
-        <div id="empty-msg" style="display:none; text-align:center; margin-top:50px;">
-            <p>Você ainda não tem favoritos. <a href="all-flats.html">Explorar todos os flats.</a></p>
-        </div>
+        <div id="favorites-grid" class="flats-grid"></div>
     </main>
 
     <script src="auth.js"></script>
     <script src="app.js"></script>
-    <script>
-        
-        function renderHome() {
-            const container = document.getElementById('favorites-grid');
-            const emptyMsg = document.getElementById('empty-msg');
-            
-            const favs = allFlats.filter(f => f.isFavourite === true);
-
-            if (favs.length === 0) {
-                emptyMsg.style.display = 'block';
-                container.innerHTML = '';
-            } else {
-                emptyMsg.style.display = 'none';
-                container.innerHTML = favs.map(flat => `
-                    <div class="flat-card airbnb-card">
-                        <div class="flat-image-placeholder"></div>
-                        <div class="flat-content">
-                            <div class="flat-header">
-                                <h3>${flat.city}</h3>
-                                <button onclick="toggleFavorite('${flat.id}')" class="fav-btn active">❤️</button>
-                            </div>
-                            <p class="flat-details">${flat.streetName}, ${flat.streetNumber}</p>
-                            <p class="flat-price"><strong>€${flat.rentPrice}</strong> / mês</p>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        window.onload = renderHome;
-    </script>
 </body>
+
 </html>
