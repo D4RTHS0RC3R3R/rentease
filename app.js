@@ -6,10 +6,20 @@ const formatDate = (dateStr) => {
     return `${day}/${month}/${year}`;
 };
 
+// --- INÍCIO DA MUDANÇA: SEGURANÇA NO CARREGAMENTO ---
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('favorites-grid')) renderFavorites();
-    if (document.getElementById('flats-table-body')) renderAllFlats();
+    // Só executa se o elemento existir E a função estiver definida no escopo
+    if (document.getElementById('favorites-grid')) {
+        if (typeof renderFavorites === 'function') {
+            renderFavorites();
+        }
+    }
+    
+    if (document.getElementById('flats-table-body')) {
+        renderAllFlats();
+    }
 });
+// --- FIM DA MUDANÇA ---
 
 function renderAllFlats() {
     const tableBody = document.getElementById('flats-table-body');
@@ -18,15 +28,25 @@ function renderAllFlats() {
     let flats = getFlats();
     const currentUser = JSON.parse(localStorage.getItem('user')) || {};
 
-    const fCity = document.getElementById('filter-city')?.value.toLowerCase() || "";
-    const fMin = parseFloat(document.getElementById('filter-price-min')?.value) || 0;
-    const fMax = parseFloat(document.getElementById('filter-price-max')?.value) || Infinity;
+    // Captura de filtros com valores padrão seguros
+    const cityInput = document.getElementById('filter-city');
+    const minInput = document.getElementById('filter-price-min');
+    const maxInput = document.getElementById('filter-price-max');
+
+    const fCity = cityInput ? cityInput.value.toLowerCase() : "";
+    const fMin = minInput && minInput.value !== "" ? parseFloat(minInput.value) : 0;
+    const fMax = maxInput && maxInput.value !== "" ? parseFloat(maxInput.value) : Infinity;
 
     flats = flats.filter(f => {
         const matchCity = f.city.toLowerCase().includes(fCity);
         const matchPrice = f.rentPrice >= fMin && f.rentPrice <= fMax;
         return matchCity && matchPrice;
     });
+
+    if (flats.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px; color:var(--text-light);">Nenhum imóvel encontrado.</td></tr>`;
+        return;
+    }
 
     tableBody.innerHTML = flats.map(f => {
         const isOwner = f.ownerEmail === currentUser.email;
@@ -35,15 +55,15 @@ function renderAllFlats() {
             <tr onclick="viewFlatDetails('${f.id}')" style="cursor:pointer;">
                 <td>
                     <div class="photo-box">
-                        <img src="${f.photoUrl}" class="td-photo" alt="Flat">
+                        <img src="${f.photoUrl}" class="td-photo" alt="Flat" onerror="this.src='https://via.placeholder.com/60?text=Imovel'">
                     </div>
                 </td>
-                <td>${f.city}</td>
+                <td><strong>${f.city}</strong></td>
                 <td>${f.streetName}, ${f.streetNumber}</td>
                 <td>${f.areaSize} m²</td>
                 <td>${f.hasAC ? 'Sim' : 'Não'}</td>
                 <td>${formatDate(f.availableDate)}</td>
-                <td>€${f.rentPrice}</td>
+                <td style="font-weight:600;">€${f.rentPrice}</td>
                 <td onclick="event.stopPropagation()">
                     <button class="fav-btn-table" onclick="toggleFavorite(event, '${f.id}')" style="background:none; border:none; cursor:pointer; font-size:18px;">
                         ${isFav ? '❤️' : '🤍'}
@@ -54,6 +74,7 @@ function renderAllFlats() {
     }).join('');
 }
 
+// Funções globais anexadas ao window para garantir acesso em qualquer PC
 window.openEditModal = (id) => {
     const flats = getFlats();
     const flat = flats.find(f => f.id === id);
@@ -97,7 +118,7 @@ window.saveEdit = (e) => {
         };
 
         localStorage.setItem('flats', JSON.stringify(flats));
-        alert("Alterações guardadas!");
+        alert("Alterações guardadas com sucesso!");
         location.reload();
     }
 };
@@ -105,7 +126,12 @@ window.saveEdit = (e) => {
 window.toggleFavorite = (e, id) => {
     if (e) e.stopPropagation();
     let user = JSON.parse(localStorage.getItem('user'));
-    if (!user) return alert("Inicie sessão primeiro.");
+    
+    if (!user) {
+        alert("Inicie sessão para guardar favoritos.");
+        window.location.href = "login.html";
+        return;
+    }
 
     user.favorites = user.favorites || [];
     const index = user.favorites.indexOf(id);
@@ -126,18 +152,20 @@ window.toggleFavorite = (e, id) => {
     }
 
     renderAllFlats();
+
+    if (typeof renderFavorites === 'function') renderFavorites();
 };
 
 window.deleteFlat = () => {
-    if (!confirm("Deseja eliminar este anúncio?")) return;
+    if (!confirm("Tem a certeza que deseja eliminar este anúncio permanentemente?")) return;
     const id = document.getElementById('edit-id').value;
     let flats = getFlats().filter(f => f.id !== id);
     localStorage.setItem('flats', JSON.stringify(flats));
     location.reload();
 };
 
-function viewFlatDetails(flatId) {
-    const flats = JSON.parse(localStorage.getItem('flats')) || [];
+window.viewFlatDetails = (flatId) => {
+    const flats = getFlats();
     const flat = flats.find(f => f.id === flatId);
 
     if (!flat) return;
@@ -145,7 +173,7 @@ function viewFlatDetails(flatId) {
     const content = document.getElementById('view-details-content');
     
     content.innerHTML = `
-        <img src="${flat.photoUrl}" style="width:100%; border-radius:12px; margin-bottom:20px; aspect-ratio:16/9; object-fit:cover;">
+        <img src="${flat.photoUrl}" onerror="this.src='https://via.placeholder.com/400x250?text=Sem+Foto'" style="width:100%; border-radius:12px; margin-bottom:20px; aspect-ratio:16/9; object-fit:cover;">
         
         <div class="details-box">
             <div class="details-row">
@@ -162,19 +190,19 @@ function viewFlatDetails(flatId) {
             </div>
             <div class="details-row">
                 <span class="details-label">Climatização</span>
-                <span class="details-value">${flat.hasAC ? 'Ar Condicionado Disponível' : 'Não possui AC'}</span>
+                <span class="details-value">${flat.hasAC ? 'Sim (Ar Condicionado)' : 'Não possui AC'}</span>
             </div>
-            <div class="details-row price-row" style="margin-top:10px; border-bottom:none;">
-                <span class="details-label" style="color:var(--primary);">Preço</span>
-                <span class="details-value" style="font-weight:bold; font-size:18px; color:var(--text-main);">
-                    €${flat.rentPrice} <small style="font-weight:400; color:var(--text-light);">/ mês</small>
+            <div class="details-row price-row" style="margin-top:15px; border-bottom:none;">
+                <span class="details-label" style="color:var(--primary);">Preço Mensal</span>
+                <span class="details-value" style="font-weight:bold; font-size:20px; color:var(--text-main);">
+                    €${flat.rentPrice} <small style="font-weight:400; color:var(--text-light); font-size:14px;">/ mês</small>
                 </span>
             </div>
         </div>
     `;
 
     document.getElementById('viewModal').style.display = 'block';
-}
+};
 
 window.closeViewModal = () => document.getElementById('viewModal').style.display = 'none';
 window.closeEditModal = () => document.getElementById('editModal').style.display = 'none';
