@@ -3,57 +3,57 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - RentEase</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body class="auth-page">
-    <div class="auth-container">
+    <main class="auth-wrapper">
         <div class="auth-card">
-            <div class="auth-header">
-                <h1 class="logo-link">RentEase</h1>
-                <h2>Bem-vindo de volta</h2>
-
-            </div>
+            <h1 style="text-align:center; color:var(--primary); margin-bottom:20px;">RentEase</h1>
+            <h2 style="margin-bottom:20px; text-align:center; font-size: 18px;">Seja bem-vindo ao RentEase!</h2>
 
             <form id="login-form">
                 <div class="input-group">
                     <label>E-mail</label>
-                    <input type="email" id="login-email" placeholder="exemplo@email.com" required>
+                    <input type="email" id="login-email" required>
                 </div>
-
                 <div class="input-group">
                     <label>Palavra-passe</label>
-                    <input type="password" id="login-password" placeholder="••••••••" required>
+                    <input type="password" id="login-pass" required>
                 </div>
-
+                <div style="text-align: right; margin-bottom: 20px;">
+                    <a href="forgot-password.html"
+                        style="font-size: 13px; color:var(--text-light); text-decoration:none;">Esqueceu-se da
+                        senha?</a>
+                </div>
                 <button type="submit" class="btn-primary">Entrar</button>
             </form>
 
-            <div class="auth-footer">
-                <p>Não tem conta? <a href="register.html">Registre-se aqui</a></p>
-            </div>
+            <p style="text-align:center; margin-top:20px; font-size:14px;">
+                Não tem conta? <a href="register.html"
+                    style="color:var(--primary); text-decoration:none; font-weight:bold;">Registre-se</a>
+            </p>
         </div>
-    </div>
+    </main>
 
-    <script src="auth.js"></script>
     <script>
-        document.getElementById('login-form').onsubmit = (e) => {
+
+        document.getElementById('login-form').addEventListener('submit', function (e) {
             e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const pass = document.getElementById('login-password').value;
+            const email = document.getElementById('login-email').value.trim().toLowerCase();
+            const pass = document.getElementById('login-pass').value;
 
             const users = JSON.parse(localStorage.getItem('users')) || [];
-            const user = users.find(u => u.email === email && u.password === pass);
+            const user = users.find(u => u.email.toLowerCase() === email && u.password === pass);
 
             if (user) {
-                createSession(user);
-                window.location.href = 'index.html';
+                localStorage.setItem('user', JSON.stringify(user));
+                window.location.replace('index.html');
             } else {
-                alert("E-mail ou password incorretos.");
+                alert("E-mail ou palavra-passe incorretos!");
             }
-        };
+        });
     </script>
 </body>
 

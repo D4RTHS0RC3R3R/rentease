@@ -1,114 +1,180 @@
-let allFlats = JSON.parse(localStorage.getItem('flats')) || [];
-const currentUser = JSON.parse(localStorage.getItem('user')) || {};
+const getFlats = () => JSON.parse(localStorage.getItem('flats')) || [];
+
+const formatDate = (dateStr) => {
+    if (!dateStr) return 'Imediata';
+    const [year, month, day] = dateStr.split('-');
+    return `${day}/${month}/${year}`;
+};
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('all-flats-grid')) renderAllFlats();
+    if (document.getElementById('favorites-grid')) renderFavorites();
+    if (document.getElementById('flats-table-body')) renderAllFlats();
 });
 
 function renderAllFlats() {
-    const container = document.getElementById('all-flats-grid');
-    if (!container) return;
+    const tableBody = document.getElementById('flats-table-body');
+    if (!tableBody) return;
 
-    const user = JSON.parse(localStorage.getItem('user')) || {};
-    const favorites = user.favorites || [];
+    let flats = getFlats();
+    const currentUser = JSON.parse(localStorage.getItem('user')) || {};
 
-    const myFlats = allFlats.filter(f => f.ownerEmail === currentUser.email);
+    const fCity = document.getElementById('filter-city')?.value.toLowerCase() || "";
+    const fMin = parseFloat(document.getElementById('filter-price-min')?.value) || 0;
+    const fMax = parseFloat(document.getElementById('filter-price-max')?.value) || Infinity;
 
-    if (myFlats.length === 0) {
-        container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 50px;">Nenhum apartamento encontrado.</p>`;
-        return;
-    }
+    flats = flats.filter(f => {
+        const matchCity = f.city.toLowerCase().includes(fCity);
+        const matchPrice = f.rentPrice >= fMin && f.rentPrice <= fMax;
+        return matchCity && matchPrice;
+    });
 
-    container.innerHTML = myFlats.map(flat => {
-        const isFav = favorites.includes(flat.id);
+    tableBody.innerHTML = flats.map(f => {
+        const isOwner = f.ownerEmail === currentUser.email;
+        const isFav = currentUser.favorites?.includes(f.id);
         return `
-            <div class="flat-card-wrapper">
-                <button class="fav-btn" onclick="toggleFavorite(event, '${flat.id}')">
-                    <span class="fav-icon ${isFav ? 'active' : ''}" id="fav-${flat.id}">❤</span>
-                </button>
-                <div class="airbnb-card" onclick="openEditModal('${flat.id}')">
-                    <div class="flat-image-container">
-                        <img src="${flat.photoUrl || 'https://via.placeholder.com/300'}" class="flat-photo">
+            <tr onclick="viewFlatDetails('${f.id}')" style="cursor:pointer;">
+                <td>
+                    <div class="photo-box">
+                        <img src="${f.photoUrl}" class="td-photo" alt="Flat">
                     </div>
-                    <div class="flat-content">
-                        <h3>${flat.city}</h3>
-                        <p class="flat-details">${flat.streetName || ''}, ${flat.streetNumber || ''}</p>
-                        <p class="flat-price"><strong>€${flat.rentPrice}</strong> / mês</p>
-                    </div>
-                </div>
-            </div>
-        `;
+                </td>
+                <td>${f.city}</td>
+                <td>${f.streetName}, ${f.streetNumber}</td>
+                <td>${f.areaSize} m²</td>
+                <td>${f.hasAC ? 'Sim' : 'Não'}</td>
+                <td>${formatDate(f.availableDate)}</td>
+                <td>€${f.rentPrice}</td>
+                <td onclick="event.stopPropagation()">
+                    <button class="fav-btn-table" onclick="toggleFavorite(event, '${f.id}')" style="background:none; border:none; cursor:pointer; font-size:18px;">
+                        ${isFav ? '❤️' : '🤍'}
+                    </button>
+                    ${isOwner ? `<button onclick="openEditModal('${f.id}')" style="background:none; border:none; cursor:pointer; font-size:18px; margin-left:10px;">✏️</button>` : ''}
+                </td>
+            </tr>`;
     }).join('');
 }
 
-window.toggleFavorite = (event, flatId) => {
-    event.stopPropagation();
+window.openEditModal = (id) => {
+    const flats = getFlats();
+    const flat = flats.find(f => f.id === id);
+    if (!flat) return;
 
+    document.getElementById('edit-id').value = flat.id;
+    document.getElementById('edit-city').value = flat.city || '';
+    document.getElementById('edit-price').value = flat.rentPrice || '';
+    document.getElementById('edit-date').value = flat.availableDate || '';
+    document.getElementById('edit-area').value = flat.areaSize || '';
+    document.getElementById('edit-street').value = flat.streetName || '';
+    document.getElementById('edit-number').value = flat.streetNumber || '';
+    document.getElementById('edit-photo').value = flat.photoUrl || '';
+    
+    const acCheckbox = document.getElementById('edit-hasAC');
+    if (acCheckbox) acCheckbox.checked = !!flat.hasAC;
+    
+    document.getElementById('editModal').style.display = 'block';
+};
+
+window.saveEdit = (e) => {
+    if (e) e.preventDefault();
+    
+    const id = document.getElementById('edit-id').value;
+    let flats = getFlats();
+    const idx = flats.findIndex(f => f.id === id);
+
+    if (idx !== -1) {
+        const acCheckbox = document.getElementById('edit-hasAC');
+
+        flats[idx] = {
+            ...flats[idx],
+            city: document.getElementById('edit-city').value,
+            rentPrice: Number(document.getElementById('edit-price').value),
+            availableDate: document.getElementById('edit-date').value,
+            areaSize: Number(document.getElementById('edit-area').value),
+            streetName: document.getElementById('edit-street').value,
+            streetNumber: Number(document.getElementById('edit-number').value),
+            photoUrl: document.getElementById('edit-photo').value,
+            hasAC: acCheckbox ? acCheckbox.checked : flats[idx].hasAC
+        };
+
+        localStorage.setItem('flats', JSON.stringify(flats));
+        alert("Alterações guardadas!");
+        location.reload();
+    }
+};
+
+window.toggleFavorite = (e, id) => {
+    if (e) e.stopPropagation();
     let user = JSON.parse(localStorage.getItem('user'));
-    let users = JSON.parse(localStorage.getItem('users')) || [];
+    if (!user) return alert("Inicie sessão primeiro.");
 
-    if (!user.favorites) user.favorites = [];
-
-    const index = user.favorites.indexOf(flatId);
+    user.favorites = user.favorites || [];
+    const index = user.favorites.indexOf(id);
+    
     if (index > -1) {
         user.favorites.splice(index, 1);
     } else {
-        user.favorites.push(flatId);
+        user.favorites.push(id);
     }
 
     localStorage.setItem('user', JSON.stringify(user));
-    localStorage.setItem('session', JSON.stringify(user));
 
-    const updatedUsers = users.map(u => u.email === user.email ? user : u);
-    localStorage.setItem('users', JSON.stringify(updatedUsers));
-
-    const icon = document.getElementById(`fav-${flatId}`);
-    if (icon) icon.classList.toggle('active');
-};
-
-window.openEditModal = (id) => {
-    const flat = allFlats.find(f => f.id === id);
-    if (flat) {
-        document.getElementById('edit-id').value = flat.id;
-        document.getElementById('edit-city').value = flat.city;
-        document.getElementById('edit-street').value = flat.streetName || '';
-        document.getElementById('edit-number').value = flat.streetNumber || '';
-        document.getElementById('edit-area').value = flat.areaSize || '';
-        document.getElementById('edit-price').value = flat.rentPrice;
-        document.getElementById('edit-photo').value = flat.photoUrl || '';
-        document.getElementById('editModal').style.display = 'block';
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    const uIdx = users.findIndex(u => u.email === user.email);
+    if (uIdx !== -1) {
+        users[uIdx].favorites = user.favorites;
+        localStorage.setItem('users', JSON.stringify(users));
     }
-};
 
-window.closeEditModal = () => {
-    document.getElementById('editModal').style.display = 'none';
-};
-
-window.saveEdit = (event) => {
-    event.preventDefault();
-    const id = document.getElementById('edit-id').value;
-
-    allFlats = allFlats.map(f => f.id === id ? {
-        ...f,
-        city: document.getElementById('edit-city').value,
-        streetName: document.getElementById('edit-street').value,
-        streetNumber: document.getElementById('edit-number').value,
-        areaSize: document.getElementById('edit-area').value,
-        rentPrice: Number(document.getElementById('edit-price').value),
-        photoUrl: document.getElementById('edit-photo').value
-    } : f);
-
-    localStorage.setItem('flats', JSON.stringify(allFlats));
-    closeEditModal();
     renderAllFlats();
 };
 
 window.deleteFlat = () => {
+    if (!confirm("Deseja eliminar este anúncio?")) return;
     const id = document.getElementById('edit-id').value;
-    if (confirm("Deseja eliminar este anúncio?")) {
-        allFlats = allFlats.filter(f => f.id !== id);
-        localStorage.setItem('flats', JSON.stringify(allFlats));
-        closeEditModal();
-        renderAllFlats();
-    }
+    let flats = getFlats().filter(f => f.id !== id);
+    localStorage.setItem('flats', JSON.stringify(flats));
+    location.reload();
 };
+
+function viewFlatDetails(flatId) {
+    const flats = JSON.parse(localStorage.getItem('flats')) || [];
+    const flat = flats.find(f => f.id === flatId);
+
+    if (!flat) return;
+
+    const content = document.getElementById('view-details-content');
+    
+    content.innerHTML = `
+        <img src="${flat.photoUrl}" style="width:100%; border-radius:12px; margin-bottom:20px; aspect-ratio:16/9; object-fit:cover;">
+        
+        <div class="details-box">
+            <div class="details-row">
+                <span class="details-label">Localização</span>
+                <span class="details-value">${flat.city}</span>
+            </div>
+            <div class="details-row">
+                <span class="details-label">Endereço</span>
+                <span class="details-value">${flat.streetName}, ${flat.streetNumber}</span>
+            </div>
+            <div class="details-row">
+                <span class="details-label">Área</span>
+                <span class="details-value">${flat.areaSize} m²</span>
+            </div>
+            <div class="details-row">
+                <span class="details-label">Climatização</span>
+                <span class="details-value">${flat.hasAC ? 'Ar Condicionado Disponível' : 'Não possui AC'}</span>
+            </div>
+            <div class="details-row price-row" style="margin-top:10px; border-bottom:none;">
+                <span class="details-label" style="color:var(--primary);">Preço</span>
+                <span class="details-value" style="font-weight:bold; font-size:18px; color:var(--text-main);">
+                    €${flat.rentPrice} <small style="font-weight:400; color:var(--text-light);">/ mês</small>
+                </span>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('viewModal').style.display = 'block';
+}
+
+window.closeViewModal = () => document.getElementById('viewModal').style.display = 'none';
+window.closeEditModal = () => document.getElementById('editModal').style.display = 'none';

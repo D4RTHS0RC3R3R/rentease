@@ -1,73 +1,74 @@
 <!DOCTYPE html>
 <html lang="pt">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anunciar Novo Flat - RentEase</title>
+    <title>RentEase - Novo Flat</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-
-<body>
-
+<body class="form-page">
     <header class="main-header">
         <div class="container header-flex">
             <a href="index.html" class="logo-link">RentEase</a>
             <nav class="main-nav">
                 <a href="index.html">Favoritos</a>
                 <a href="all-flats.html">Todos os Flats</a>
-                <a href="new-flat.html">Novo Flat</a>
+                <a href="new-flat.html" class="active">Novo Flat</a>
                 <a href="profile.html">Perfil</a>
             </nav>
-            <div class="user-info">
-                Olá, <strong id="full-name-header">...</strong>
-                <button onclick="logout()"
-                    style="background:none; border:1px solid #ddd; padding:5px 12px; border-radius:20px; cursor:pointer;">Sair</button>
-            </div>
+            <div class="user-info">Olá, <strong id="full-name-header">...</strong> <button onclick="logout()" class="btn-logout">Sair</button></div>
         </div>
-    </header>
     </header>
 
     <main class="container">
-        <div class="auth-card">
-            <h1>Crie o seu espaço</h1>
-            <p class="subtitle">Insira os detalhes do novo flat abaixo.</p>
-
-            <form id="new-flat-form">
-                <div class="input-section">
-                    <label>Localização</label>
-                    <input type="text" id="city" placeholder="Cidade (ex: Lisboa)" required>
-                    <div class="input-row">
-                        <input type="text" id="streetName" placeholder="Nome da Rua" required>
-                        <input type="number" id="streetNumber" placeholder="Nº" required>
+        <div class="airbnb-card" style="max-width: 800px;">
+            <h1 style="margin-bottom: 10px;">Anunciar Imóvel</h1>
+            <p style="color: var(--text-light); margin-bottom: 30px;">Preencha os dados abaixo para publicar o seu anúncio.</p>
+            
+            <form id="new-flat-form" onsubmit="saveNewFlat(event)">
+                <div class="edit-grid">
+                    <div class="input-group">
+                        <label>Cidade</label>
+                        <input type="text" id="city" placeholder="Ex: Lisboa" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Preço (€)</label>
+                        <input type="number" id="rentPrice" placeholder="0.00" required>
                     </div>
                 </div>
 
-                <div class="input-section">
-                    <label>Características</label>
-                    <div class="input-row">
-                        <input type="number" id="areaSize" placeholder="Área (m²)" required>
-                        <input type="number" id="yearBuilt" placeholder="Ano de Construção" required>
+                <div class="edit-grid">
+                    <div class="input-group">
+                        <label>Rua</label>
+                        <input type="text" id="streetName" required>
                     </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="hasAC">
-                        <label for="hasAC">Possui Ar Condicionado?</label>
+                    <div class="input-group">
+                        <label>Número</label>
+                        <input type="number" id="streetNumber" required>
                     </div>
                 </div>
 
-                <div class="input-section">
-                    <label>Preço e Disponibilidade</label>
-                    <input type="number" id="rentPrice" placeholder="Preço do Aluguel (€)" required>
-                    <input type="date" id="dateAvailable" required>
+                <div class="edit-grid">
+                    <div class="input-group">
+                        <label>Área (m²)</label>
+                        <input type="number" id="areaSize" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Disponível desde</label>
+                        <input type="date" id="availableDate" required>
+                    </div>
                 </div>
 
-                <div class="input-section">
-                    <label>Link da Imagem</label>
-                    <input type="url" id="photoUrl" placeholder="https://exemplo.com/imagem.jpg">
-                    <small style="color: #717171;">Cole o endereço de uma imagem da internet.</small>
+                <div class="input-group">
+                    <label>URL da Foto</label>
+                    <input type="url" id="photoUrl" placeholder="https://..." required>
                 </div>
 
-                <button type="submit" class="btn-primary">Criar Flat</button>
+                <div class="input-group" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
+                    <input type="checkbox" id="hasAC" style="width: auto; cursor: pointer;">
+                    <label for="hasAC" style="text-transform: none; cursor: pointer; font-weight: normal;">Este imóvel tem Ar Condicionado?</label>
+                </div>
+
+                <button type="submit" class="btn-primary" style="margin-top: 30px;">Publicar Anúncio</button>
             </form>
         </div>
     </main>
@@ -75,43 +76,29 @@
     <script src="auth.js"></script>
     <script src="app.js"></script>
     <script>
-
-        document.getElementById('new-flat-form').addEventListener('submit', saveNewFlat);
-
-        function saveNewFlat(event) {
-            event.preventDefault();
-
-            const userSession = JSON.parse(localStorage.getItem('user'));
-
-            if (!userSession || !userSession.email) {
-                alert("Erro de sessão. Por favor, faça login novamente.");
-                window.location.href = 'login.html';
-                return;
-            }
-
+        function saveNewFlat(e) {
+            e.preventDefault();
+            const user = JSON.parse(localStorage.getItem('user'));
+            
             const newFlat = {
-                id: crypto.randomUUID(),
-                ownerEmail: userSession.email,
+                id: Date.now().toString(),
                 city: document.getElementById('city').value,
                 streetName: document.getElementById('streetName').value,
-                streetNumber: Number(document.getElementById('streetNumber').value),
-                areaSize: Number(document.getElementById('areaSize').value),
+                streetNumber: document.getElementById('streetNumber').value,
+                areaSize: document.getElementById('areaSize').value,
+                rentPrice: parseFloat(document.getElementById('rentPrice').value),
+                availableDate: document.getElementById('availableDate').value,
+                photoUrl: document.getElementById('photoUrl').value,
                 hasAC: document.getElementById('hasAC').checked,
-                yearBuilt: Number(document.getElementById('yearBuilt').value),
-                rentPrice: Number(document.getElementById('rentPrice').value),
-                dateAvailable: document.getElementById('dateAvailable').value,
-                photoUrl: document.getElementById('photoUrl').value || "",
-                isFavourite: false
             };
 
-            allFlats.push(newFlat);
-
-            localStorage.setItem('flats', JSON.stringify(allFlats));
-
-            alert("Apartamento criado com sucesso!");
+            const flats = JSON.parse(localStorage.getItem('flats')) || [];
+            flats.push(newFlat);
+            localStorage.setItem('flats', JSON.stringify(flats));
+            
+            alert('Imóvel publicado com sucesso!');
             window.location.href = 'all-flats.html';
         }
     </script>
 </body>
-
 </html>

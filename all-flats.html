@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todos os Flats - RentEase</title>
+    <title>RentEase - Todos os Flats</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <header class="main-header">
         <div class="container header-flex">
@@ -16,50 +17,114 @@
                 <a href="new-flat.html">Novo Flat</a>
                 <a href="profile.html">Perfil</a>
             </nav>
-            <div class="user-info">
-                Olá, <strong id="full-name-header">...</strong>
-                <button onclick="logout()" class="btn-logout">Sair</button>
-            </div>
+            <div class="user-info">Olá, <strong id="full-name-header">...</strong> <button onclick="logout()"
+                    class="btn-logout">Sair</button></div>
         </div>
     </header>
 
-    <main class="container">
-        <h1>Todos os Flats</h1>
-    
-        <div id="all-flats-grid" class="flats-grid"></div>
+    <main class="container" style="margin-top: 40px;">
+        <h1 style="margin-bottom: 10px;">Todos os Imóveis</h1>
+        <p style="color: gray; margin-bottom: 30px;">Clique num imóvel para ver detalhes ou use o coração para
+            favoritar.</p>
+
+        <div class="filter-container">
+            <div class="filter-group">
+                <label>Cidade:</label>
+                <input type="text" id="filter-city" placeholder="Ex: Lisboa..." oninput="renderAllFlats()">
+            </div>
+
+            <div class="filter-group">
+                <label>Preço Mín:</label>
+                <input type="number" id="filter-price-min" placeholder="0" oninput="renderAllFlats()">
+            </div>
+
+            <div class="filter-group">
+                <label>Máx:</label>
+                <input type="number" id="filter-price-max" placeholder="9999" oninput="renderAllFlats()">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Cidade</th>
+                        <th>Preço</th>
+                        <th>Área</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="flats-table-body">
+                </tbody>
+            </table>
+        </div>
+
+        <div id="viewModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeViewModal()">Fechar</span>
+
+                <div id="view-details-content"></div>
+            </div>
+        </div>
 
         <div id="editModal" class="modal">
             <div class="modal-content">
                 <span class="close-btn" onclick="closeEditModal()">&times;</span>
-                <h2>Editar Flat</h2>
-                <form id="edit-form" onsubmit="saveEdit(event)">
+                <h2>Editar Anúncio</h2>
+                <form id="edit-form" onsubmit="saveEdit(event)" style="margin-top:20px;">
                     <input type="hidden" id="edit-id">
-                    <label>Cidade</label>
-                    <input type="text" id="edit-city" required>
-                    <div class="input-row">
-                        <div>
-                            <label>Rua</label>
-                            <input type="text" id="edit-street">
+
+                    <div class="edit-grid">
+                        <div class="input-group">
+                            <label>Cidade</label>
+                            <input type="text" id="edit-city" required>
                         </div>
-                        <div>
-                            <label>Nº</label>
-                            <input type="text" id="edit-number">
-                        </div>
-                    </div>
-                    <div class="input-row">
-                        <div>
-                            <label>Área (m²)</label>
-                            <input type="number" id="edit-area">
-                        </div>
-                        <div>
+                        <div class="input-group">
                             <label>Preço (€)</label>
                             <input type="number" id="edit-price" required>
                         </div>
                     </div>
-                    <label>Link da Foto (URL)</label>
-                    <input type="url" id="edit-photo">
-                    <button type="submit" class="btn-primary">Guardar Alterações</button>
-                    <button type="button" onclick="deleteFlat()" class="btn-delete-acc">Eliminar Flat</button>
+
+                    <div class="edit-grid">
+                        <div class="input-group">
+                            <label>Disponível em</label>
+                            <input type="date" id="edit-date" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Área (m²)</label>
+                            <input type="number" id="edit-area" required>
+                        </div>
+                    </div>
+
+                    <div class="edit-grid">
+                        <div class="input-group">
+                            <label>Rua</label>
+                            <input type="text" id="edit-street" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Número</label>
+                            <input type="number" id="edit-number" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group"
+                        style="flex-direction: row; align-items: center; gap: 10px; margin: 10px 0;">
+                        <input type="checkbox" id="edit-hasAC" style="width: auto;">
+                        <label for="edit-hasAC" style="text-transform: none; cursor: pointer;">Tem Ar
+                            Condicionado?</label>
+                    </div>
+
+                    <div class="input-group">
+                        <label>URL da Foto</label>
+                        <input type="url" id="edit-photo" required>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="submit" class="btn-primary">Guardar Alterações</button>
+                        <button type="button" onclick="deleteFlat()" class="btn-primary"
+                            style="background: #222;">Eliminar</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -68,4 +133,5 @@
     <script src="auth.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>

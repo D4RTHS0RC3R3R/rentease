@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Perfil - RentEase</title>
+    <title>Perfil - RentEase</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-
-<body>
+<body class="form-page">
     <header class="main-header">
         <div class="container header-flex">
             <a href="index.html" class="logo-link">RentEase</a>
@@ -18,52 +15,132 @@
                 <a href="new-flat.html">Novo Flat</a>
                 <a href="profile.html" class="active">Perfil</a>
             </nav>
-            <div class="user-info">
-                Olá, <strong id="full-name-header">...</strong>
-                <button onclick="logout()" class="btn-logout">Sair</button>
-            </div>
+            <div class="user-info">Olá, <strong id="full-name-header">...</strong> <button onclick="logout()" class="btn-logout">Sair</button></div>
         </div>
     </header>
 
     <main class="container">
-        <div style="max-width: 600px; margin: 0 auto;">
-            <h1>O meu Perfil</h1>
-            <p class="subtitle">Edite as informações de sua conta abaixo.</p>
-
-            <div class="auth-card" style="margin-top: 0;">
-                <form id="profile-form" onsubmit="saveProfile(event)">
-                    <div class="input-row">
-                        <div>
-                            <label>Primeiro Nome</label>
-                            <input type="text" id="prof-firstName" required>
-                        </div>
-                        <div>
-                            <label>Último Nome</label>
-                            <input type="text" id="prof-lastName" required>
-                        </div>
+        <div class="airbnb-card">
+            <h2 style="margin-bottom: 25px;">Editar Perfil</h2>
+            <form id="edit-profile-form" onsubmit="updateProfile(event)">
+                <div class="edit-grid">
+                    <div class="input-group">
+                        <label>Nome</label>
+                        <input type="text" id="prof-firstName" required>
                     </div>
-
-                    <label>E-mail (Não pode ser alterado)</label>
-                    <input type="email" id="prof-email" disabled style="background: #f0f0f0; cursor: not-allowed;">
-
-                    <label>Data de Nascimento</label>
-                    <input type="date" id="prof-birth" required>
-
-                    <button type="submit" class="btn-primary">Guardar Alterações</button>
-                </form>
-
-                <div style="border-top: 1px solid var(--border-color); padding-top: 30px; margin-top: 30px;">
-                    <h3 style="color: var(--primary-color); margin-bottom: 8px;">Excluir Conta</h3>
-                    <p class="subtitle" style="margin-bottom: 20px; font-size: 0.85rem;">Ao excluir a conta, todos os
-                        seus dados serão eliminados permanentemente.</p>
-                    <button onclick="deleteAccount()" class="btn-delete-acc">Excluir Minha Conta</button>
+                    <div class="input-group">
+                        <label>Apelido</label>
+                        <input type="text" id="prof-lastName" required>
+                    </div>
                 </div>
+                <div class="input-group">
+                    <label>E-mail</label>
+                    <input type="email" id="prof-email" required>
+                </div>
+                <div class="input-group">
+                    <label>Data de Nascimento</label>
+                    <input type="date" id="prof-birthDate">
+                </div>
+                <button type="submit" class="btn-primary">Atualizar Dados</button>
+            </form>
+
+            <hr style="margin: 40px 0; border: 0; border-top: 1px solid var(--border-light);">
+
+            <h3 style="margin-bottom: 20px;">Alterar Senha</h3>
+            <form onsubmit="changePassword(event)">
+                <div class="edit-grid">
+                    <div class="input-group">
+                        <label>Nova Senha</label>
+                        <input type="password" id="new-password" required minlength="6">
+                    </div>
+                    <div class="input-group">
+                        <label>Confirmar Nova Senha</label>
+                        <input type="password" id="confirm-password" required minlength="6">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" style="background: #222;">Atualizar Senha</button>
+            </form>
+
+            <hr style="margin: 40px 0; border: 0; border-top: 1px solid var(--border-light);">
+
+            <div style="background: #fff5f5; padding: 20px; border-radius: 12px; border: 1px solid #ffecec;">
+                <h3 style="color: #c13511; margin-bottom: 10px;">EXCLUIR MINHA CONTA</h3>
+                <p style="font-size: 14px; color: #717171; margin-bottom: 20px;">Ao excluir a sua conta, todos os seus dados e anúncios serão removidos permanentemente.</p>
+                <button onclick="deleteAccount()" class="btn-primary" style="background: #c13511; width: auto; padding: 10px 20px;">Excluir Minha Conta</button>
             </div>
         </div>
     </main>
 
     <script src="auth.js"></script>
-    <script src="profile.js"></script>
-</body>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) return window.location.href = 'login.html';
 
+            document.getElementById('prof-firstName').value = user.firstName || '';
+            document.getElementById('prof-lastName').value = user.lastName || '';
+            document.getElementById('prof-email').value = user.email || '';
+            document.getElementById('prof-birthDate').value = user.birthDate || '';
+            document.getElementById('full-name-header').textContent = user.firstName;
+        });
+
+        function updateProfile(e) {
+            e.preventDefault();
+            let user = JSON.parse(localStorage.getItem('user'));
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            const oldEmail = user.email;
+
+            user.firstName = document.getElementById('prof-firstName').value;
+            user.lastName = document.getElementById('prof-lastName').value;
+            user.email = document.getElementById('prof-email').value;
+            user.birthDate = document.getElementById('prof-birthDate').value;
+
+            const idx = users.findIndex(u => u.email === oldEmail);
+            if(idx !== -1) users[idx] = user;
+
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('users', JSON.stringify(users));
+            alert("Perfil atualizado com sucesso!");
+            location.reload();
+        }
+
+        function changePassword(e) {
+            e.preventDefault();
+            const p1 = document.getElementById('new-password').value;
+            const p2 = document.getElementById('confirm-password').value;
+
+            if (p1 !== p2) return alert("As passwords não coincidem!");
+            
+            let user = JSON.parse(localStorage.getItem('user'));
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            
+            user.password = p1;
+            const idx = users.findIndex(u => u.email === user.email);
+            if(idx !== -1) users[idx].password = p1;
+            
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('users', JSON.stringify(users));
+            alert("Password alterada com sucesso!");
+            e.target.reset();
+        }
+
+        function deleteAccount() {
+            if (!confirm("TEM A CERTEZA? Esta ação não pode ser desfeita e apagará todos os seus imóveis.")) return;
+
+            const user = JSON.parse(localStorage.getItem('user'));
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            let flats = JSON.parse(localStorage.getItem('flats')) || [];
+
+            users = users.filter(u => u.email !== user.email);
+           
+            flats = flats.filter(f => f.ownerEmail !== user.email);
+
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('flats', JSON.stringify(flats));
+            
+            alert("Conta eliminada. Até breve!");
+            logout();
+        }
+    </script>
+</body>
 </html>

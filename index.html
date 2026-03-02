@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
-    <title>RentEase - Meus Favoritos</title>
+    <title>RentEase - Favoritos</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <header class="main-header">
         <div class="container header-flex">
@@ -15,22 +17,60 @@
                 <a href="new-flat.html">Novo Flat</a>
                 <a href="profile.html">Perfil</a>
             </nav>
-            <div class="user-info">
-                Olá, <strong id="full-name-header">...</strong>
-                <button onclick="logout()" class="btn-logout">Sair</button>
-            </div>
+            <div class="user-info">Olá, <strong id="full-name-header">...</strong> <button onclick="logout()"
+                    class="btn-logout">Sair</button></div>
         </div>
     </header>
 
-    <main class="container">
-        <section class="page-title">
-            <h1>Meus Favoritos ❤️</h1>
-            <p>Aqui estão os flats que você mais gostou.</p>
-        </section>
-
-        <div id="favorites-grid" class="flats-grid"></div>
+    <main class="container" style="margin-top: 40px;">
+        <h1>Os meus Favoritos</h1>
+        <div id="favorites-grid" class="flats-grid">
+        </div>
     </main>
 
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeViewModal()">Fechar</span>
+
+            <div id="view-details-content"></div>
+        </div>
+    </div>
+
     <script src="auth.js"></script>
-    <script src="index.js"></script> </body>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', renderFavorites);
+
+        function renderFavorites() {
+            const container = document.getElementById('favorites-grid');
+            const user = JSON.parse(localStorage.getItem('user')) || {};
+            const flats = JSON.parse(localStorage.getItem('flats')) || [];
+            const favIds = user.favorites || [];
+
+            const myFavs = flats.filter(f => favIds.includes(f.id));
+
+            if (myFavs.length === 0) {
+                container.innerHTML = '<p style="grid-column: 1/-1; color: #717171;">Ainda não tens imóveis favoritos.</p>';
+                return;
+            }
+
+            container.innerHTML = myFavs.map(f => `
+    <div class="flat-card-fav" onclick="viewFlatDetails('${f.id}')">
+        <button class="fav-btn-card" onclick="toggleFavorite(event, '${f.id}')">
+            <span style="color: #ff385c;">❤</span>
+        </button>
+        <img src="${f.photoUrl}" class="flat-photo-fav">
+        
+        <div class="fav-card-content">
+            <h3>${f.city}</h3>
+            <p class="address-text">${f.streetName}, ${f.streetNumber}</p>
+            <p class="address-text" style="font-size: 12px;">${f.areaSize}m² • ${f.hasAC ? 'Ar Condicionado' : 'Sem AC'}</p>
+            <div class="price-tag">€${f.rentPrice} <span>/ mês</span></div>
+        </div>
+    </div>
+`).join('');
+        }
+    </script>
+</body>
+
 </html>

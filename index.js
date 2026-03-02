@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    if (typeof updateHeaderName === 'function') updateHeaderName();
     renderFavorites();
 });
 
@@ -6,51 +7,50 @@ function renderFavorites() {
     const container = document.getElementById('favorites-grid');
     if (!container) return;
 
-    const allFlats = JSON.parse(localStorage.getItem('flats')) || [];
     const user = JSON.parse(localStorage.getItem('user')) || {};
+    const allFlats = JSON.parse(localStorage.getItem('flats')) || [];
     const favoritesIds = user.favorites || [];
 
-    const myFavorites = allFlats.filter(flat => favoritesIds.includes(flat.id));
+    const favoriteFlats = allFlats.filter(f => favoritesIds.includes(f.id));
 
-    if (myFavorites.length === 0) {
-        container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 50px; color: #717171;">Ainda não tens nenhum favorito guardado.</p>`;
+    if (favoriteFlats.length === 0) {
+        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-light);">Ainda não tens imóveis favoritos.</p>';
         return;
     }
 
-    container.innerHTML = myFavorites.map(flat => `
-        <div class="flat-card-wrapper">
-            <button class="fav-btn" onclick="removeFavorite(event, '${flat.id}')">
-                <span class="fav-icon active">❤</span>
+    container.innerHTML = favoriteFlats.map(f => `
+        <div class="airbnb-card" onclick="viewFlatDetails('${f.id}')">
+            <button class="fav-btn" onclick="toggleFavorite(event, '${f.id}')">
+                <span style="color: #ff385c; font-size: 20px;">❤</span>
             </button>
-            <div class="airbnb-card">
-                <div class="flat-image-container">
-                    <img src="${flat.photoUrl || 'https://via.placeholder.com/300'}" class="flat-photo">
-                </div>
-                <div class="flat-content">
-                    <h3>${flat.city}</h3>
-                    <p class="flat-details">${flat.streetName || ''}, ${flat.streetNumber || ''}</p>
-                    <p class="flat-price"><strong>€${flat.rentPrice}</strong> / mês</p>
-                </div>
+            <img src="${f.photoUrl}" class="flat-photo" onerror="this.src='https://via.placeholder.com/300x225'">
+            <div class="card-content">
+                <h3>${f.city}</h3>
+                <p>${f.streetName}, ${f.streetNumber}</p>
+                <p>${f.areaSize} m² • ${f.hasAC ? 'Com AC' : 'Sem AC'}</p>
+                <p class="card-price">€${f.rentPrice} / mês</p>
             </div>
         </div>
     `).join('');
 }
 
-window.removeFavorite = (event, flatId) => {
-    event.stopPropagation();
-
+function toggleFavorite(e, id) {
+    e.stopPropagation();
     let user = JSON.parse(localStorage.getItem('user'));
-    let users = JSON.parse(localStorage.getItem('users')) || [];
-
-    if (user.favorites) {
-        user.favorites = user.favorites.filter(id => id !== flatId);
-    }
-
+    if (!user) return;
+    
+    user.favorites = user.favorites || [];
+    user.favorites = user.favorites.filter(favId => favId !== id);
+    
     localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('session', JSON.stringify(user));
-
-    const updatedUsers = users.map(u => u.email === user.email ? user : u);
-    localStorage.setItem('users', JSON.stringify(updatedUsers));
+    
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    const idx = users.findIndex(u => u.email === user.email);
+    if (idx !== -1) {
+        users[idx].favorites = user.favorites;
+        localStorage.setItem('users', JSON.stringify(users));
+    }
 
     renderFavorites();
-};
+}

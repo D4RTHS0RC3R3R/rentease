@@ -1,33 +1,53 @@
 <!DOCTYPE html>
-<html lang="pt">
-
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registo - RentEase</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-
 <body class="auth-page">
-    <main class="auth-container">
-        <form id="register-form" class="airbnb-card" onsubmit="handleRegister(event)">
-            <div class="logo">RentEase</div>
-            <h2>Criar conta</h2>
+    <main class="auth-wrapper">
+        <form id="register-form" class="auth-card" onsubmit="handleRegister(event)">
+            <div class="logo-link" style="text-align:center; display:block; margin-bottom:20px;">RentEase</div>
+            <h2 style="margin-bottom:20px; text-align:center;">Criar conta</h2>
 
-            <div class="input-group">
-                <input type="text" id="firstName" placeholder="Primeiro Nome" required minlength="2">
-                <input type="text" id="lastName" placeholder="Último Nome" required minlength="2">
+            <div class="edit-grid">
+                <div class="input-group">
+                    <label>Primeiro Nome</label>
+                    <input type="text" id="firstName" required minlength="2">
+                </div>
+                <div class="input-group">
+                    <label>Último Nome</label>
+                    <input type="text" id="lastName" required minlength="2">
+                </div>
             </div>
 
-            <input type="email" id="reg-email" placeholder="E-mail" required>
-            <label for="birthDate">Data de Nascimento:</label>
-            <input type="date" id="birthDate" required>
+            <div class="input-group">
+                <label for="reg-email">E-mail</label>
+                <input type="email" id="reg-email" placeholder="exemplo@email.com" required>
+            </div>
 
-            <input type="password" id="reg-password" placeholder="Palavra-passe" required>
-            <input type="password" id="confirm-password" placeholder="Confirmar Palavra-passe" required>
+            <div class="input-group">
+                <label for="birthDate">Data de Nascimento</label>
+                <input type="date" id="birthDate" required>
+            </div>
 
-            <button type="submit" class="btn-primary">Registrar</button>
-            <p class="auth-footer">Já tem conta? <a href="login.html">Login</a></p>
+            <div class="input-group">
+                <label for="reg-password">Palavra-passe</label>
+                <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" required minlength="6">
+            </div>
+
+            <div class="input-group">
+                <label for="confirm-password">Confirmar Palavra-passe</label>
+                <input type="password" id="confirm-password" placeholder="Repita a senha" required>
+            </div>
+
+            <button type="submit" class="btn-primary" style="margin-top:10px;">Registrar</button>
+            
+            <p style="text-align:center; margin-top:20px; font-size:14px;">
+                Já tem conta? <a href="login.html" style="color:#ff385c; text-decoration:none; font-weight:bold;">Faça Login</a>
+            </p>
         </form>
     </main>
 
@@ -36,38 +56,34 @@
         function handleRegister(event) {
             event.preventDefault();
 
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const email = document.getElementById('reg-email').value;
-
-            if (users.find(u => u.email === email)) {
-                return alert("Este email já está registado!");
-            }
+            const email = document.getElementById('reg-email').value.trim();
             const password = document.getElementById('reg-password').value;
             const confirmPass = document.getElementById('confirm-password').value;
-
+            
             if (password !== confirmPass) {
                 return alert("As passwords não coincidem!");
             }
 
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+                return alert("Este email já está registado!");
+            }
+
             const newUser = {
-                firstName: document.getElementById('firstName').value,
-                lastName: document.getElementById('lastName').value,
+                firstName: document.getElementById('firstName').value.trim(),
+                lastName: document.getElementById('lastName').value.trim(),
                 email: email,
                 password: password,
-                birthDate: document.getElementById('birthDate').value
+                birthDate: document.getElementById('birthDate').value,
+                favorites: [] 
             };
-
-            if (!validateUser(newUser)) return;
 
             users.push(newUser);
             localStorage.setItem('users', JSON.stringify(users));
 
-            createSession(newUser);
-
             alert("Conta criada com sucesso!");
-            window.location.href = 'index.html';
+            window.location.replace('login.html');
         }
     </script>
 </body>
-
 </html>

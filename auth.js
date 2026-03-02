@@ -1,49 +1,34 @@
-function updateHeaderName() {
-    const session = JSON.parse(localStorage.getItem('session')) || JSON.parse(localStorage.getItem('user'));
-    const nameDisplay = document.getElementById('full-name-header');
-    
-    if (nameDisplay && session && session.firstName) {
-        nameDisplay.textContent = `${session.firstName} ${session.lastName}`;
+document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim().toLowerCase();
+            const pass = document.getElementById('login-pass').value;
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            
+            const user = users.find(u => u.email.toLowerCase() === email && u.password === pass);
+
+            if (user) {
+                localStorage.setItem('user', JSON.stringify(user));
+                window.location.href = 'index.html';
+            } else {
+                alert("E-mail ou senha incorretos.");
+            }
+        });
     }
-}
-
-function checkAuth() {
-    const session = localStorage.getItem('session');
-    const isAuthPage = window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html');
-
-    if (!session && !isAuthPage) {
-        window.location.href = 'login.html';
-    }
-}
-
-function createSession(user) {
-    const sessionData = {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        birthDate: user.birthDate,
-        loginAt: new Date().getTime()
-    };
-    localStorage.setItem('session', JSON.stringify(sessionData));
-    localStorage.setItem('user', JSON.stringify(sessionData));
-}
+    if (typeof updateHeaderName === 'function') updateHeaderName();
+});
 
 function logout() {
-    localStorage.removeItem('session');
+    localStorage.removeItem('user');
     window.location.href = 'login.html';
 }
 
-function validateUser(user) {
-    const birthYear = new Date(user.birthDate).getFullYear();
-    const age = new Date().getFullYear() - birthYear;
-    if (isNaN(age) || age < 18) {
-        alert("Mínimo 18 anos.");
-        return false;
+function updateHeaderName() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const el = document.getElementById('full-name-header');
+    if (user && el) {
+        el.textContent = user.firstName + " " + user.lastName;
     }
-    return true;
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();
-    updateHeaderName();
-});
