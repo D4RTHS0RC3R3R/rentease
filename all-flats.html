@@ -50,8 +50,11 @@
                     <tr>
                         <th>Foto</th>
                         <th>Cidade</th>
-                        <th>Preço</th>
+                        <th>Endereço</th>
                         <th>Área</th>
+                        <th>AC</th>
+                        <th>Disponível</th>
+                        <th>Preço</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -60,74 +63,75 @@
             </table>
         </div>
 
-        <div id="viewModal" class="modal">
-            <div class="modal-content">
-                <span class="close-btn" onclick="closeViewModal()">Fechar</span>
+    </main>
 
-                <div id="view-details-content"></div>
-            </div>
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeViewModal()">Fechar</span>
+
+            <div id="view-details-content"></div>
         </div>
+    </div>
 
-        <div id="editModal" class="modal">
-            <div class="modal-content">
-                <span class="close-btn" onclick="closeEditModal()">&times;</span>
-                <h2>Editar Anúncio</h2>
-                <form id="edit-form" onsubmit="saveEdit(event)" style="margin-top:20px;">
-                    <input type="hidden" id="edit-id">
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeEditModal()">&times;</span>
+            <h2>Editar Anúncio</h2>
+            <form id="edit-form" onsubmit="saveEdit(event)" style="margin-top:20px;">
+                <input type="hidden" id="edit-id">
 
-                    <div class="edit-grid">
-                        <div class="input-group">
-                            <label>Cidade</label>
-                            <input type="text" id="edit-city" required>
-                        </div>
-                        <div class="input-group">
-                            <label>Preço (€)</label>
-                            <input type="number" id="edit-price" required>
-                        </div>
-                    </div>
-
-                    <div class="edit-grid">
-                        <div class="input-group">
-                            <label>Disponível em</label>
-                            <input type="date" id="edit-date" required>
-                        </div>
-                        <div class="input-group">
-                            <label>Área (m²)</label>
-                            <input type="number" id="edit-area" required>
-                        </div>
-                    </div>
-
-                    <div class="edit-grid">
-                        <div class="input-group">
-                            <label>Rua</label>
-                            <input type="text" id="edit-street" required>
-                        </div>
-                        <div class="input-group">
-                            <label>Número</label>
-                            <input type="number" id="edit-number" required>
-                        </div>
-                    </div>
-
-                    <div class="input-group"
-                        style="flex-direction: row; align-items: center; gap: 10px; margin: 10px 0;">
-                        <input type="checkbox" id="edit-hasAC" style="width: auto;">
-                        <label for="edit-hasAC" style="text-transform: none; cursor: pointer;">Tem Ar
-                            Condicionado?</label>
-                    </div>
-
+                <div class="edit-grid">
                     <div class="input-group">
-                        <label>URL da Foto</label>
-                        <input type="url" id="edit-photo" required>
+                        <label>Cidade</label>
+                        <input type="text" id="edit-city" required>
                     </div>
+                    <div class="input-group">
+                        <label>Preço (€)</label>
+                        <input type="number" id="edit-price" required>
+                    </div>
+                </div>
 
-                    <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button type="submit" class="btn-primary">Guardar Alterações</button>
-                        <button type="button" onclick="deleteFlat()" class="btn-primary"
-                            style="background: #222;">Eliminar</button>
+                <div class="edit-grid">
+                    <div class="input-group">
+                        <label>Disponível em</label>
+                        <input type="date" id="edit-date" required>
                     </div>
-                </form>
-            </div>
+                    <div class="input-group">
+                        <label>Área (m²)</label>
+                        <input type="number" id="edit-area" required>
+                    </div>
+                </div>
+
+                <div class="edit-grid">
+                    <div class="input-group">
+                        <label>Rua</label>
+                        <input type="text" id="edit-street" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Número</label>
+                        <input type="number" id="edit-number" required>
+                    </div>
+                </div>
+
+                <div class="input-group" style="flex-direction: row; align-items: center; gap: 10px; margin: 10px 0;">
+                    <input type="checkbox" id="edit-hasAC" style="width: auto;">
+                    <label for="edit-hasAC" style="text-transform: none; cursor: pointer;">Tem Ar
+                        Condicionado?</label>
+                </div>
+
+                <div class="input-group">
+                    <label>URL da Foto (Opcional)</label>
+                    <input type="url" id="edit-photo">
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn-primary">Guardar Alterações</button>
+                    <button type="button" onclick="deleteFlat()" class="btn-primary"
+                        style="background: #222;">Eliminar</button>
+                </div>
+            </form>
         </div>
+    </div>
     </main>
 
     <script src="auth.js"></script>

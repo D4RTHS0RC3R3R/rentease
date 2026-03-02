@@ -1,7 +1,6 @@
 (function() {
     const currentUser = JSON.parse(localStorage.getItem('user'));
     const path = window.location.pathname;
-    
     const isAuthPage = path.includes('login.html') || path.includes('register.html');
 
     if (!currentUser && !isAuthPage) {
@@ -58,11 +57,13 @@ function renderAllFlats() {
     tableBody.innerHTML = flats.map(f => {
         const isOwner = f.ownerEmail === currentUser.email;
         const isFav = currentUser.favorites?.includes(f.id);
+        const displayPhoto = f.photoUrl && f.photoUrl.trim() !== "" ? f.photoUrl : 'https://via.placeholder.com/60?text=Casa';
+
         return `
             <tr onclick="viewFlatDetails('${f.id}')" style="cursor:pointer;">
                 <td>
                     <div class="photo-box">
-                        <img src="${f.photoUrl}" class="td-photo" alt="Flat" onerror="this.src='https://via.placeholder.com/60?text=Casa'">
+                        <img src="${displayPhoto}" class="td-photo" alt="Flat" onerror="this.src='https://via.placeholder.com/60?text=Casa'">
                     </div>
                 </td>
                 <td><strong>${f.city}</strong></td>
@@ -176,9 +177,10 @@ window.viewFlatDetails = (flatId) => {
     if (!flat) return;
 
     const content = document.getElementById('view-details-content');
+    const displayPhoto = flat.photoUrl && flat.photoUrl.trim() !== "" ? flat.photoUrl : 'https://via.placeholder.com/400x250?text=Sem+Foto';
     
     content.innerHTML = `
-        <img src="${flat.photoUrl}" onerror="this.src='https://via.placeholder.com/400x250?text=Sem+Foto'" style="width:100%; border-radius:12px; margin-bottom:20px; aspect-ratio:16/9; object-fit:cover;">
+        <img src="${displayPhoto}" onerror="this.src='https://via.placeholder.com/400x250?text=Sem+Foto'" style="width:100%; border-radius:12px; margin-bottom:20px; aspect-ratio:16/9; object-fit:cover;">
         
         <div class="details-box">
             <div class="details-row">

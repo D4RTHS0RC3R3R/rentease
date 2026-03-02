@@ -59,8 +59,8 @@
                 </div>
 
                 <div class="input-group">
-                    <label>URL da Foto</label>
-                    <input type="url" id="photoUrl" placeholder="https://..." required>
+                    <label>URL da Foto (Opcional)</label>
+                    <input type="url" id="photoUrl" placeholder="https://...">
                 </div>
 
                 <div class="input-group" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
@@ -78,8 +78,13 @@
     <script>
         function saveNewFlat(e) {
             e.preventDefault();
-            const user = JSON.parse(localStorage.getItem('user'));
+            const currentUser = JSON.parse(localStorage.getItem('user'));
             
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+
             const newFlat = {
                 id: Date.now().toString(),
                 city: document.getElementById('city').value,
@@ -88,8 +93,9 @@
                 areaSize: document.getElementById('areaSize').value,
                 rentPrice: parseFloat(document.getElementById('rentPrice').value),
                 availableDate: document.getElementById('availableDate').value,
-                photoUrl: document.getElementById('photoUrl').value,
+                photoUrl: document.getElementById('photoUrl').value || "", // Aceita vazio
                 hasAC: document.getElementById('hasAC').checked,
+                ownerEmail: currentUser.email // Vincula o imóvel ao utilizador logado
             };
 
             const flats = JSON.parse(localStorage.getItem('flats')) || [];
@@ -99,6 +105,13 @@
             alert('Imóvel publicado com sucesso!');
             window.location.href = 'all-flats.html';
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user && document.getElementById('full-name-header')) {
+                document.getElementById('full-name-header').textContent = user.firstName + ' ' + user.lastName;
+            }
+        });
     </script>
 </body>
 </html>
