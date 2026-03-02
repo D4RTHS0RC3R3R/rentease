@@ -1,3 +1,14 @@
+(function() {
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    const path = window.location.pathname;
+    
+    const isAuthPage = path.includes('login.html') || path.includes('register.html');
+
+    if (!currentUser && !isAuthPage) {
+        window.location.href = 'login.html';
+    }
+})();
+
 const getFlats = () => JSON.parse(localStorage.getItem('flats')) || [];
 
 const formatDate = (dateStr) => {
@@ -7,7 +18,6 @@ const formatDate = (dateStr) => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  
     if (document.getElementById('favorites-grid')) {
         if (typeof renderFavorites === 'function') {
             renderFavorites();
@@ -52,7 +62,7 @@ function renderAllFlats() {
             <tr onclick="viewFlatDetails('${f.id}')" style="cursor:pointer;">
                 <td>
                     <div class="photo-box">
-                        <img src="${f.photoUrl}" class="td-photo" alt="Flat" onerror="this.src='https://via.placeholder.com/60?text=Imovel'">
+                        <img src="${f.photoUrl}" class="td-photo" alt="Flat" onerror="this.src='https://via.placeholder.com/60?text=Casa'">
                     </div>
                 </td>
                 <td><strong>${f.city}</strong></td>
@@ -124,7 +134,6 @@ window.toggleFavorite = (e, id) => {
     let user = JSON.parse(localStorage.getItem('user'));
     
     if (!user) {
-        alert("Inicie sessão para guardar favoritos.");
         window.location.href = "login.html";
         return;
     }
@@ -198,6 +207,11 @@ window.viewFlatDetails = (flatId) => {
     `;
 
     document.getElementById('viewModal').style.display = 'block';
+};
+
+window.logout = () => {
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
 };
 
 window.closeViewModal = () => document.getElementById('viewModal').style.display = 'none';
