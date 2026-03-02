@@ -93,9 +93,9 @@
                 areaSize: document.getElementById('areaSize').value,
                 rentPrice: parseFloat(document.getElementById('rentPrice').value),
                 availableDate: document.getElementById('availableDate').value,
-                photoUrl: document.getElementById('photoUrl').value || "", // Aceita vazio
+                photoUrl: document.getElementById('photoUrl').value || "",
                 hasAC: document.getElementById('hasAC').checked,
-                ownerEmail: currentUser.email // Vincula o imóvel ao utilizador logado
+                ownerEmail: currentUser.email
             };
 
             const flats = JSON.parse(localStorage.getItem('flats')) || [];
