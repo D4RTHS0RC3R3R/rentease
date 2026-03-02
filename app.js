@@ -32,8 +32,10 @@ function renderAllFlats() {
     const tableBody = document.getElementById('flats-table-body');
     if (!tableBody) return;
 
-    let flats = getFlats();
-    const currentUser = JSON.parse(localStorage.getItem('user')) || {};
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    if (!currentUser) return;
+
+    let flats = getFlats().filter(f => f.ownerEmail === currentUser.email);
 
     const cityInput = document.getElementById('filter-city');
     const minInput = document.getElementById('filter-price-min');
@@ -50,12 +52,11 @@ function renderAllFlats() {
     });
 
     if (flats.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px; color:var(--text-light);">Nenhum imóvel encontrado.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px; color:var(--text-light);">Ainda não publicou nenhum imóvel.</td></tr>`;
         return;
     }
 
     tableBody.innerHTML = flats.map(f => {
-        const isOwner = f.ownerEmail === currentUser.email;
         const isFav = currentUser.favorites?.includes(f.id);
         const displayPhoto = f.photoUrl && f.photoUrl.trim() !== "" ? f.photoUrl : 'https://via.placeholder.com/60?text=Casa';
 
@@ -76,12 +77,11 @@ function renderAllFlats() {
                     <button class="fav-btn-table" onclick="toggleFavorite(event, '${f.id}')" style="background:none; border:none; cursor:pointer; font-size:18px;">
                         ${isFav ? '❤️' : '🤍'}
                     </button>
-                    ${isOwner ? `<button onclick="openEditModal('${f.id}')" style="background:none; border:none; cursor:pointer; font-size:18px; margin-left:10px;">✏️</button>` : ''}
+                    <button onclick="openEditModal('${f.id}')" style="background:none; border:none; cursor:pointer; font-size:18px; margin-left:10px;">✏️</button>
                 </td>
             </tr>`;
     }).join('');
 }
-
 window.openEditModal = (id) => {
     const flats = getFlats();
     const flat = flats.find(f => f.id === id);
