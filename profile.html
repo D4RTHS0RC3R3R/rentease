@@ -81,25 +81,46 @@
             document.getElementById('prof-lastName').value = user.lastName || '';
             document.getElementById('prof-email').value = user.email || '';
             document.getElementById('prof-birthDate').value = user.birthDate || '';
-            document.getElementById('full-name-header').textContent = user.firstName;
+
+            if (typeof updateHeaderName === 'function') {
+                updateHeaderName();
+            } else {
+                const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+                document.getElementById('full-name-header').textContent = fullName || "Utilizador";
+            }
         });
 
         function updateProfile(e) {
             e.preventDefault();
-            let user = JSON.parse(localStorage.getItem('user'));
+            const currentUser = JSON.parse(localStorage.getItem('user'));
             let users = JSON.parse(localStorage.getItem('users')) || [];
-            const oldEmail = user.email;
+            const oldEmail = currentUser.email;
 
-            user.firstName = document.getElementById('prof-firstName').value;
-            user.lastName = document.getElementById('prof-lastName').value;
-            user.email = document.getElementById('prof-email').value;
-            user.birthDate = document.getElementById('prof-birthDate').value;
+            const updatedUser = {
+                ...currentUser,
+                firstName: document.getElementById('prof-firstName').value,
+                lastName: document.getElementById('prof-lastName').value,
+                email: document.getElementById('prof-email').value.toLowerCase(),
+                birthDate: document.getElementById('prof-birthDate').value
+            };
 
             const idx = users.findIndex(u => u.email === oldEmail);
-            if(idx !== -1) users[idx] = user;
+            if(idx !== -1) {
+                users[idx] = updatedUser;
+            }
 
-            localStorage.setItem('user', JSON.stringify(user));
+            if (oldEmail !== updatedUser.email) {
+                let flats = JSON.parse(localStorage.getItem('flats')) || [];
+                flats = flats.map(f => {
+                    if (f.ownerEmail === oldEmail) f.ownerEmail = updatedUser.email;
+                    return f;
+                });
+                localStorage.setItem('flats', JSON.stringify(flats));
+            }
+
+            localStorage.setItem('user', JSON.stringify(updatedUser));
             localStorage.setItem('users', JSON.stringify(users));
+            
             alert("Perfil atualizado com sucesso!");
             location.reload();
         }
@@ -132,7 +153,6 @@
             let flats = JSON.parse(localStorage.getItem('flats')) || [];
 
             users = users.filter(u => u.email !== user.email);
-           
             flats = flats.filter(f => f.ownerEmail !== user.email);
 
             localStorage.setItem('users', JSON.stringify(users));
