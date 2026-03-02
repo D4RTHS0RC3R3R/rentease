@@ -6,9 +6,8 @@ const formatDate = (dateStr) => {
     return `${day}/${month}/${year}`;
 };
 
-// --- INÍCIO DA MUDANÇA: SEGURANÇA NO CARREGAMENTO ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Só executa se o elemento existir E a função estiver definida no escopo
+  
     if (document.getElementById('favorites-grid')) {
         if (typeof renderFavorites === 'function') {
             renderFavorites();
@@ -19,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAllFlats();
     }
 });
-// --- FIM DA MUDANÇA ---
 
 function renderAllFlats() {
     const tableBody = document.getElementById('flats-table-body');
@@ -28,7 +26,6 @@ function renderAllFlats() {
     let flats = getFlats();
     const currentUser = JSON.parse(localStorage.getItem('user')) || {};
 
-    // Captura de filtros com valores padrão seguros
     const cityInput = document.getElementById('filter-city');
     const minInput = document.getElementById('filter-price-min');
     const maxInput = document.getElementById('filter-price-max');
