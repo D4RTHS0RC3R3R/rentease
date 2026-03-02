@@ -71,7 +71,6 @@ function renderAllFlats() {
     }).join('');
 }
 
-// Funções globais anexadas ao window para garantir acesso em qualquer PC
 window.openEditModal = (id) => {
     const flats = getFlats();
     const flat = flats.find(f => f.id === id);
