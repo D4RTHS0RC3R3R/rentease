@@ -39,38 +39,50 @@
     <script src="auth.js"></script>
     <script src="app.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', renderFavorites);
+    document.addEventListener('DOMContentLoaded', renderFavorites);
 
-        function renderFavorites() {
-            const container = document.getElementById('favorites-grid');
-            const user = JSON.parse(localStorage.getItem('user')) || {};
-            const flats = JSON.parse(localStorage.getItem('flats')) || [];
-            const favIds = user.favorites || [];
+    function renderFavorites() {
+        const container = document.getElementById('favorites-grid');
+        if (!container) return;
 
-            const myFavs = flats.filter(f => favIds.includes(f.id));
+        const user = JSON.parse(localStorage.getItem('user')) || {};
+        const flats = JSON.parse(localStorage.getItem('flats')) || [];
+        const favIds = user.favorites || [];
 
-            if (myFavs.length === 0) {
-                container.innerHTML = '<p style="grid-column: 1/-1; color: #717171;">Ainda não tens imóveis favoritos.</p>';
-                return;
-            }
+        const myFavs = flats.filter(f => f && favIds.includes(f.id));
 
-            container.innerHTML = myFavs.map(f => `
-    <div class="flat-card-fav" onclick="viewFlatDetails('${f.id}')">
-        <button class="fav-btn-card" onclick="toggleFavorite(event, '${f.id}')">
-            <span style="color: #ff385c;">❤</span>
-        </button>
-        <img src="${f.photoUrl}" class="flat-photo-fav">
-        
-        <div class="fav-card-content">
-            <h3>${f.city}</h3>
-            <p class="address-text">${f.streetName}, ${f.streetNumber}</p>
-            <p class="address-text" style="font-size: 12px;">${f.areaSize}m² • ${f.hasAC ? 'Ar Condicionado' : 'Sem AC'}</p>
-            <div class="price-tag">€${f.rentPrice} <span>/ mês</span></div>
-        </div>
-    </div>
-`).join('');
+        if (myFavs.length === 0) {
+            container.innerHTML = '<p style="grid-column: 1/-1; color: #717171;">Ainda não tens imóveis favoritos.</p>';
+            return;
         }
-    </script>
-</body>
+
+        const defaultImg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='250' viewBox='0 0 400 250'><rect width='400' height='250' fill='%23eee'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='20' fill='%23999'>Casa</text></svg>`;
+
+        container.innerHTML = myFavs.map(f => {
+            
+            const displayPhoto = f.photoUrl && f.photoUrl.trim() !== "" ? f.photoUrl : defaultImg;
+
+            return `
+                <div class="flat-card-fav" onclick="viewFlatDetails('${f.id}')">
+                    <button class="fav-btn-card" onclick="toggleFavorite(event, '${f.id}')">
+                        <span style="color: #ff385c;">❤</span>
+                    </button>
+                    <img src="${displayPhoto}" 
+                         class="flat-photo-fav" 
+                         onerror="this.src='${defaultImg}'; this.onerror=null;">
+                    
+                    <div class="fav-card-content">
+                        <h3>${f.city || 'N/A'}</h3>
+                        <p class="address-text">${f.streetName || ''}, ${f.streetNumber || ''}</p>
+                        <p class="address-text" style="font-size: 12px;">
+                            ${f.areaSize || 0}m² • ${f.hasAC ? 'Ar Condicionado' : 'Sem AC'}
+                        </p>
+                        <div class="price-tag">€${f.rentPrice || 0} <span>/ mês</span></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+</script>
 
 </html>
