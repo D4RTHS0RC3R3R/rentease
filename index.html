@@ -17,21 +17,39 @@
                 <a href="new-flat.html">Novo Flat</a>
                 <a href="profile.html">Perfil</a>
             </nav>
-            <div class="user-info">Olá, <strong id="full-name-header">...</strong> <button onclick="logout()"
-                    class="btn-logout">Sair</button></div>
+            <div class="user-info">Olá, <strong id="full-name-header">...</strong> 
+                <button onclick="logout()" class="btn-logout">Sair</button>
+            </div>
         </div>
     </header>
 
     <main class="container" style="margin-top: 40px;">
-        <h1>Os meus Favoritos</h1>
-        <div id="favorites-grid" class="flats-grid">
+        <h1 style="margin-bottom: 10px;">Os meus Favoritos</h1>
+        <p style="color: gray; margin-bottom: 30px;">Gerencie aqui os imóveis que guardou como favoritos.</p>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Cidade</th>
+                        <th>Endereço</th>
+                        <th>Área</th>
+                        <th>AC</th>
+                        <th>Disponível</th>
+                        <th>Preço</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="favorites-grid">
+                    </tbody>
+            </table>
         </div>
     </main>
 
     <div id="viewModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeViewModal()">Fechar</span>
-
             <div id="view-details-content"></div>
         </div>
     </div>
@@ -52,37 +70,46 @@
         const myFavs = flats.filter(f => f && favIds.includes(f.id));
 
         if (myFavs.length === 0) {
-            container.innerHTML = '<p style="grid-column: 1/-1; color: #717171;">Ainda não tens imóveis favoritos.</p>';
+            container.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px; color:gray;">Ainda não tens imóveis favoritos.</td></tr>';
             return;
         }
 
-        const defaultImg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='250' viewBox='0 0 400 250'><rect width='400' height='250' fill='%23eee'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='20' fill='%23999'>Casa</text></svg>`;
+        const defaultImg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='45' viewBox='0 0 60 45'><rect width='60' height='45' fill='%23eee'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='10' fill='%23999'>Casa</text></svg>`;
 
         container.innerHTML = myFavs.map(f => {
-            
             const displayPhoto = f.photoUrl && f.photoUrl.trim() !== "" ? f.photoUrl : defaultImg;
 
             return `
-                <div class="flat-card-fav" onclick="viewFlatDetails('${f.id}')">
-                    <button class="fav-btn-card" onclick="toggleFavorite(event, '${f.id}')">
-                        <span style="color: #ff385c;">❤</span>
-                    </button>
-                    <img src="${displayPhoto}" 
-                         class="flat-photo-fav" 
-                         onerror="this.src='${defaultImg}'; this.onerror=null;">
-                    
-                    <div class="fav-card-content">
-                        <h3>${f.city || 'N/A'}</h3>
-                        <p class="address-text">${f.streetName || ''}, ${f.streetNumber || ''}</p>
-                        <p class="address-text" style="font-size: 12px;">
-                            ${f.areaSize || 0}m² • ${f.hasAC ? 'Ar Condicionado' : 'Sem AC'}
-                        </p>
-                        <div class="price-tag">€${f.rentPrice || 0} <span>/ mês</span></div>
-                    </div>
-                </div>
+                <tr onclick="viewFlatDetails('${f.id}')" style="cursor:pointer;">
+                    <td>
+                        <div class="photo-box">
+                            <img src="${displayPhoto}" class="td-photo" alt="Flat" 
+                                 onerror="this.src='${defaultImg}'; this.onerror=null;">
+                        </div>
+                    </td>
+                    <td><strong>${f.city || '---'}</strong></td>
+                    <td>${f.streetName || ''}, ${f.streetNumber || ''}</td>
+                    <td>${f.areaSize || 0} m²</td>
+                    <td>${f.hasAC ? 'Sim' : 'Não'}</td>
+                    <td>${typeof formatDate === 'function' ? formatDate(f.availableDate) : f.availableDate}</td>
+                    <td style="font-weight:600;">€${f.rentPrice || 0}</td>
+                    <td onclick="event.stopPropagation()">
+                        <button class="fav-btn-table" onclick="toggleFavorite(event, '${f.id}')" 
+                                style="background:none; border:none; cursor:pointer; font-size:18px;">
+                            ❤️
+                        </button>
+                    </td>
+                </tr>
             `;
         }).join('');
     }
-</script>
 
+    
+    const originalToggle = window.toggleFavorite;
+    window.toggleFavorite = function(e, id) {
+        if (originalToggle) originalToggle(e, id);
+        renderFavorites(); 
+    };
+    </script>
+</body>
 </html>

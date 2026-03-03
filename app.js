@@ -23,6 +23,12 @@ const formatDate = (dateStr) => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    const fullNameHeader = document.getElementById('full-name-header');
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (fullNameHeader && user) {
+        fullNameHeader.textContent = `${user.firstName} ${user.lastName}`;
+    }
+
     if (document.getElementById('favorites-grid')) {
         if (typeof renderFavorites === 'function') {
             renderFavorites();
@@ -53,31 +59,29 @@ function renderAllFlats() {
     });
 
     if (flats.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px; color:gray;">Nenhum imóvel.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px; color:gray;">Nenhum imóvel encontrado.</td></tr>`;
         return;
     }
 
     tableBody.innerHTML = flats.map(f => {
         const isFav = (currentUser.favorites || []).includes(f.id);
-
-
         const defaultImg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='45' viewBox='0 0 60 45'><rect width='60' height='45' fill='%23eee'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='10' fill='%23999'>Casa</text></svg>`;
         const displayPhoto = f.photoUrl && f.photoUrl.trim() !== "" ? f.photoUrl : defaultImg;
 
         return `
             <tr onclick="viewFlatDetails('${f.id}')" style="cursor:pointer;">
-                <td>
+                <td data-label="Foto">
                     <div class="photo-box">
                         <img src="${displayPhoto}" class="td-photo" alt="Flat" onerror="this.src='${defaultImg}'; this.onerror=null;">
                     </div>
                 </td>
-                <td><strong>${f.city || '---'}</strong></td>
-                <td>${f.streetName || ''}, ${f.streetNumber || ''}</td>
-                <td>${f.areaSize || 0} m²</td>
-                <td>${f.hasAC ? 'Sim' : 'Não'}</td>
-                <td>${formatDate(f.availableDate)}</td>
-                <td style="font-weight:600;">€${f.rentPrice || 0}</td>
-                <td onclick="event.stopPropagation()">
+                <td data-label="Cidade"><strong>${f.city || '---'}</strong></td>
+                <td data-label="Endereço">${f.streetName || ''}, ${f.streetNumber || ''}</td>
+                <td data-label="Área">${f.areaSize || 0} m²</td>
+                <td data-label="AC">${f.hasAC ? 'Sim' : 'Não'}</td>
+                <td data-label="Disponível">${formatDate(f.availableDate)}</td>
+                <td data-label="Preço" style="font-weight:600;">€${f.rentPrice || 0}</td>
+                <td data-label="Ações" onclick="event.stopPropagation()">
                     <button class="fav-btn-table" onclick="toggleFavorite(event, '${f.id}')" style="background:none; border:none; cursor:pointer; font-size:18px;">
                         ${isFav ? '❤️' : '🤍'}
                     </button>
@@ -109,14 +113,12 @@ window.openEditModal = (id) => {
 
 window.saveEdit = (e) => {
     if (e) e.preventDefault();
-
     const id = document.getElementById('edit-id').value;
     let flats = getFlats();
     const idx = flats.findIndex(f => f.id === id);
 
     if (idx !== -1) {
         const acCheckbox = document.getElementById('edit-hasAC');
-
         flats[idx] = {
             ...flats[idx],
             city: document.getElementById('edit-city').value,
@@ -138,11 +140,7 @@ window.saveEdit = (e) => {
 window.toggleFavorite = (e, id) => {
     if (e) e.stopPropagation();
     let user = JSON.parse(localStorage.getItem('user'));
-
-    if (!user) {
-        window.location.href = "login.html";
-        return;
-    }
+    if (!user) return;
 
     user.favorites = user.favorites || [];
     const index = user.favorites.indexOf(id);
@@ -162,7 +160,8 @@ window.toggleFavorite = (e, id) => {
         localStorage.setItem('users', JSON.stringify(users));
     }
 
-    renderAllFlats();
+    if (document.getElementById('flats-table-body')) renderAllFlats();
+    if (typeof renderFavorites === 'function') renderFavorites();
 };
 
 window.deleteFlat = () => {
@@ -176,11 +175,9 @@ window.deleteFlat = () => {
 window.viewFlatDetails = (flatId) => {
     const flats = getFlats();
     const flat = flats.find(f => f.id === flatId);
-
     if (!flat) return;
 
     const content = document.getElementById('view-details-content');
-
     const defaultImg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='250' viewBox='0 0 400 250'><rect width='400' height='250' fill='%23eee'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='20' fill='%23999'>Imagem Indisponível</text></svg>`;
     const displayPhoto = flat.photoUrl && flat.photoUrl.trim() !== "" ? flat.photoUrl : defaultImg;
 
